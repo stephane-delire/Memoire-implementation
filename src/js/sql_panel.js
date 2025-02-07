@@ -15,8 +15,9 @@ sqlBtnClear.addEventListener('click', clearSQL);
 function executeSQL() {
     let sql = sqlTextarea.value;
     try {
-        alasql(sql);
+        var res = alasql(sql); // ! retour en cas de SELECT
         successSQL();
+        renderTable(); // render la table (table_panel.js)
     } catch (error) {
         console.error(error);
         errorSQL();
