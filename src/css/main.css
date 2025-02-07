@@ -1,0 +1,48 @@
+body {
+    font-family: 'Roboto';
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+/* Header */
+header {
+    background-color: #333;
+    color: white;
+    min-height: 25px;
+}
+
+/* Main */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+main .content {
+    margin-top: 10px;
+    width: 950px;
+    outline: 1px solid purple; /* a Supprimer */
+}
+
+
+/* Footer */
+footer {
+    background-color: white;
+    color: black;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    min-height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+footer .footer-logo {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-left: 10px;
+    padding: 5px;
+    margin: 0 10px;
+    width: 275px;
+}
