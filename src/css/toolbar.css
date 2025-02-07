@@ -1,0 +1,33 @@
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 3px;
+    align-items: center;
+    padding: 0 20px;
+    color: white;
+    height: 25px;
+}
+.toolbar .tool_btn {
+    color: rgb(230, 230, 230);
+    border: 1px solid rgb(230, 230, 230);
+    padding: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Tool specific */
+#tool_execute:hover {
+    background-color: #4CAF50;
+}
+
+#tool_reset:hover {
+    background-color: #f44336;
+}
+
+#tool_github {
+    margin-left: 5px;
+}
