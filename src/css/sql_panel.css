@@ -13,6 +13,9 @@
     color: #666;
     outline-color: #666;
     outline-width: 1px;
+    outline-style: solid;
+    border-radius: 5px;
+    border: none;
 }
 #sql_textarea:focus {
     color: black;
@@ -20,7 +23,15 @@
     outline-width: 1px;
     border: none;
 }
-
+/* dynamic style */
+#sql_textarea.sql-success {
+    outline-color: rgb(2, 214, 2);
+    background-color: rgb(200, 255, 200);
+}
+#sql_textarea.sql-error {
+    outline-color: rgb(214, 2, 2);
+    background-color: rgb(255, 200, 200);
+}
 
 #container_sql_btn {
     display: flex;
