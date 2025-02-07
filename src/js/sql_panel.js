@@ -16,8 +16,11 @@ function executeSQL() {
     let sql = sqlTextarea.value;
     try {
         var res = alasql(sql); // ! retour en cas de SELECT
+
+
         successSQL();
-        renderTable(); // render la table (table_panel.js)
+        renderTable(); // rendre la table (table_panel.js)
+        resParse(sql, res); // Vers le JS res_panel.js
     } catch (error) {
         console.error(error);
         errorSQL();

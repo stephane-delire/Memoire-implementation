@@ -4,3 +4,13 @@ alasql("INSERT INTO cities VALUES ('Paris',2249975),('Berlin',3517424),('Madrid'
 
 alasql("CREATE TABLE cities2 (city string, pop number)");
 alasql("INSERT INTO cities2 VALUES ('Paris',2249975),('Berlin',3517424),('Madrid',3041579)");
+
+
+
+alasql("CREATE TABLE one (id NVARCHAR(3));")
+alasql("CREATE TABLE two (id NVARCHAR(3));")
+alasql("CREATE TABLE three (id NVARCHAR(3));")
+
+alasql("INSERT INTO one VALUES ('A'),('AB'),('AC'),('ABC');")
+alasql("INSERT INTO two VALUES ('B'),('AB'),('BC'),('ABC');")
+alasql("INSERT INTO three VALUES ('C'),('BC'),('AC'),('ABC');")

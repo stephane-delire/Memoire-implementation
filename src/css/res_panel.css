@@ -1,0 +1,14 @@
+#container_res {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+#res_null {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+}
