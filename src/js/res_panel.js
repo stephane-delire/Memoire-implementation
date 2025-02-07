@@ -57,15 +57,20 @@ function resParse(sql, res){
 
         // ---------------------------------------------------------------------
         // On push dans statements :
-        statements.push({
+        var new_statement = {
             id: statements_index,
             type: type,
             query: normalize_query,
             isFO: isFO,
             reason: reason,
             res: res
-        });
+        };
+        statements.push(new_statement);
         statements_index++;
+
+        // ---------------------------------------------------------------------
+        // render
+        renderNewStatement(new_statement);
     }
 };
 
@@ -103,4 +108,114 @@ function isFOExpressible(query, type){
         return [false, 'Aggregation'];
     }
     return [true, ''];
+}
+
+function renderNewStatement(statement){
+    //hide the no result message
+    document.getElementById('res_null').style.display = 'none';
+    //rendering
+    var div = document.createElement('div');
+    div.classList.add('res_content');
+    div.setAttribute('id', 'res_'+statement.id);
+    div.setAttribute('type', statement.type);
+    div.setAttribute('isFO', statement.isFO);
+
+    // top bar
+    var top_bar = document.createElement('div');
+    top_bar.classList.add('res_top_bar');
+    div.appendChild(top_bar);
+    // badge
+    var badge = document.createElement('div');
+    badge.classList.add('res_badge');
+    badge.innerHTML = statement.type;
+    if (statement.type == 'SELECT') {
+        badge.classList.add('badge_select');
+    }
+    if (statement.type == 'INSERT') {
+        badge.classList.add('badge_insert');
+    }
+    if (statement.type == 'CREATE') {
+        badge.classList.add('badge_create');
+    }
+    if (statement.type == 'DROP') {
+        badge.classList.add('badge_drop');
+    }
+    if (statement.type == 'DELETE') {
+        badge.classList.add('badge_delete');
+    }
+    if (statement.type == 'UPDATE') {
+        badge.classList.add('badge_update');
+    }
+    if (statement.type == 'ALTER') {
+        badge.classList.add('badge_alter');
+    }
+    top_bar.appendChild(badge);
+
+    // query content
+    var div_query = document.createElement('div');
+    div_query.classList.add('res_query');
+    div_query.innerHTML = statement.query;
+    top_bar.appendChild(div_query);
+
+    // close button
+    var close_btn = document.createElement('div');
+    close_btn.classList.add('res_close');
+    close_btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+    `;
+    close_btn.addEventListener('click', function(){
+        document.getElementById('res_'+statement.id).remove();
+        if(containerRes.childElementCount == 1){
+            document.getElementById('res_null').style.display = 'block';
+        }
+    });
+    top_bar.appendChild(close_btn);
+
+    // -------------------------------------------------------------------------
+    // render select result
+    if(statement.type == 'SELECT'){
+        //FO
+        var div_isFO = document.createElement('div');
+        div_isFO.classList.add('res_isFO');
+        if(statement.isFO){
+            div_isFO.innerHTML = 'Exprimable en FO';
+            div_isFO.classList.add('isFO_true');
+        }else{
+            div_isFO.innerHTML = 'Non exprimable en FO';
+            div_isFO.classList.add('isFO_false');
+        }
+        div.appendChild(div_isFO);
+        
+        
+        //res
+        var table_container = document.createElement('div');
+        table_container.classList.add('res_table_container');
+        div.appendChild(table_container);
+        var table = document.createElement('table');
+        table.classList.add('res_table');
+        var thead = document.createElement('thead');
+        var tr = document.createElement('tr');
+        for (const key in statement.res[0]) {
+            var th = document.createElement('th');
+            th.innerHTML = key;
+            tr.appendChild(th);
+        }
+        thead.appendChild(tr);
+        table.appendChild(thead);
+        var tbody = document.createElement('tbody');
+        for (const row of statement.res) {
+            var tr = document.createElement('tr');
+            for (const key in row) {
+                var td = document.createElement('td');
+                td.innerHTML = row[key];
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        table_container.appendChild(table);
+    }
+
+
+    containerRes.appendChild(div);
 }

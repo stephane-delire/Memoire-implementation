@@ -14,3 +14,13 @@ alasql("CREATE TABLE three (id NVARCHAR(3));")
 alasql("INSERT INTO one VALUES ('A'),('AB'),('AC'),('ABC');")
 alasql("INSERT INTO two VALUES ('B'),('AB'),('BC'),('ABC');")
 alasql("INSERT INTO three VALUES ('C'),('BC'),('AC'),('ABC');")
+
+
+setTimeout(() => {
+    sqlTextarea.value = "SELECT * FROM cities;";
+    executeSQL();
+    sqlTextarea.value = "Insert into cities value ('Paris', 4000000);";
+    executeSQL();
+    sqlTextarea.value = "select sum(pop) as population, city as ville from cities group by city;";
+    executeSQL();
+}, 1000);
