@@ -30504,9 +30504,18 @@ Expecting ` + g4.join(", ") + ", got '" + (this.terminals_[H2] || H2) + "'" : F3
                         }), E.pk) {
                         var P1 = E.pk,
                             X1 = P1.onrightfn(h);
-                        if (typeof E.uniqs[P1.hh][X1] < "u")
-                            if (d) C = E.uniqs[P1.hh][X1];
-                            else throw new Error("Cannot insert record, because it already exists in primary key index-test")
+                        // need to bypass the constraint verification for allowing
+                        // duplicate primary keys
+                        // origin : 
+                        // if (typeof E.uniqs[P1.hh][X1] < "u")
+                        //     if (d) C = E.uniqs[P1.hh][X1];
+                        //     else throw new Error("Cannot insert record, because it already exists in primary key index-test")
+                        
+                        // modified : this code need to be trigged by a flag...
+                        // if (typeof E.uniqs?.[P1.hh]?.[X1] !== "undefined") {
+                            // if (d) C = E.uniqs[P1.hh][X1];
+                            // else throw new Error("Primary key constraint");
+                        // }
                     }
                     if (E.uk && E.uk.length && E.uk.forEach(function(G1) {
                             var j1 = G1.onrightfn(h);
