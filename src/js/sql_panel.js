@@ -45,3 +45,16 @@ function resetSQL() {
     sqlTextarea.classList.remove('sql-success');
     sqlTextarea.classList.remove('sql-error');
 }
+// eventlistener for the textarea
+sqlTextarea.addEventListener('keydown', function (event) {
+    resetSQL();
+    
+    if (event.key === 'Enter' && event.ctrlKey || event.key == 'F8') {
+        executeSQL();
+    }
+    
+    if (event.key === 'Escape' || event.key === 'F9') {
+        clearSQL();
+    }
+
+});
