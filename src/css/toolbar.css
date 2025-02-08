@@ -22,11 +22,15 @@
     background-color: rgb(230, 230, 230);
     color: black;
 }
+.toolbar .tool_btn.active {
+    background-color: rgb(230, 230, 230);
+    color: black;
+}
 
 /* Tooltip */
 .tooltiptext {
     visibility: hidden;
-    width: 60px;
+    width: 70px;
     background-color: #333;
     color: #fff;
     text-align: center;
@@ -50,6 +54,9 @@
     visibility: visible;
     opacity: 1;
 }
+.spacer {
+    width: 5px;
+}
 
 /* Tool specific */
 #tool_execute:hover {
@@ -62,4 +69,16 @@
 
 #tool_github {
     margin-left: 5px;
+}
+
+#tool_deactivate_constraints {
+    color: rgb(237, 219, 145);
+}
+#tool_deactivate_constraints:hover {
+    background-color: rgb(230, 230, 230);
+    color: black;
+}
+#tool_deactivate_constraints.active {
+    background-color: rgb(237, 219, 145);
+    color: black;
 }

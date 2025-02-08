@@ -29,7 +29,24 @@ Implémentation du mémoire
     
     <header>
         <!-- Toolbar -->
-        <div class="toolbar">
+        <div class="toolbar" id="toolbar">
+            <!-- deactivate constraints -->
+            <span class="tool_btn active" id="tool_deactivate_constraints">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                <span class="tooltiptext">Désactiver les contraintes</span>
+            </span>
+            <span class="spacer"></span>
+            <!-- hide res -->
+            <span class="tool_btn" id="tool_hide_res">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-bar"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16h8"/><path d="M7 11h12"/><path d="M7 6h3"/></svg>
+                <span class="tooltiptext">Masquer les résultats</span>
+            </span>
+            <!-- hide table -->
+            <span class="tool_btn" id="tool_hide_table">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+                <span class="tooltiptext">Masquer les tables</span>
+            </span>
+            <span class="spacer"></span>
             <!-- execute -->
             <span class="tool_btn" id="tool_execute">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -112,6 +129,7 @@ Implémentation du mémoire
 <script src="src/js/sql_panel.js"></script>
 <script src="src/js/table_panel.js"></script>
 <script src="src/js/res_panel.js"></script>
+<script src="src/js/toolbar.js"></script>
 
 
 <script src="src/js/startup.js"></script>

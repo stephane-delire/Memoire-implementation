@@ -23,4 +23,5 @@ setTimeout(() => {
     // executeSQL();
     sqlTextarea.value = "select sum(pop) as population, city as ville from cities group by city;";
     executeSQL();
+    sqlTextarea.value = "Insert into cities value ('Paris', 4000000);";
 }, 1000);
