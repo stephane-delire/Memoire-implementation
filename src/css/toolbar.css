@@ -6,6 +6,7 @@
     padding: 0 20px;
     color: white;
     height: 25px;
+    position: relative;
 }
 .toolbar .tool_btn {
     color: rgb(230, 230, 230);
@@ -17,7 +18,38 @@
     justify-content: center;
     align-items: center;
 }
+.toolbar .tool_btn:hover {
+    background-color: rgb(230, 230, 230);
+    color: black;
+}
 
+/* Tooltip */
+.tooltiptext {
+    visibility: hidden;
+    width: 60px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 20;
+    top: 100%;
+    margin-left: 0px;
+
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: opacity 0.6s;
+    /* font */
+    font-size: 12px;
+    font-family: 'Roboto';
+}
+.tool_btn:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
 
 /* Tool specific */
 #tool_execute:hover {
