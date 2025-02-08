@@ -26,3 +26,8 @@
     margin-bottom: 10px;
     text-decoration: underline;
 }
+
+/* primary key */
+.pk {
+    text-decoration: underline;
+}

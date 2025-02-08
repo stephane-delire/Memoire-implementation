@@ -14,6 +14,14 @@ function renderTable(){
         tableElement.classList.add('sql_table');
         tableElement.id = "table_" + table;
         tableElement.setAttribute('name', table);
+
+        // pk
+        var pk = alasql.tables[table].pk;
+        if (pk){
+            var pk_column = pk.columns;
+        } else {
+            var pk_column = null;
+        }
         
         // - Table head (columns) + table name
         var thead = document.createElement('thead');
@@ -33,6 +41,12 @@ function renderTable(){
             th.classList.add('table_column');
             th.setAttribute('name', column.columnid);
             tr.appendChild(th);
+            // pk (pk_column is an array)
+            if (pk_column && pk_column.includes(column.columnid)){
+                th.classList.add('pk');
+                th.setAttribute('pk', 'true');
+            }
+
         }
         thead.appendChild(tr);
         tableElement.appendChild(thead);
@@ -48,6 +62,11 @@ function renderTable(){
                 td.setAttribute('name', value);
                 td.setAttribute('table_name', table);
                 tr.appendChild(td);
+                // pk
+                if (pk_column && pk_column.includes(Object.keys(row)[Object.values(row).indexOf(value)])){
+                    td.classList.add('pk');
+                    td.setAttribute('pk', 'true');
+                };
             }
         );
             tbody.appendChild(tr);
