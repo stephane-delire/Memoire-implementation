@@ -330,12 +330,42 @@ function certainty(query, type, target_table, res, pk_error, isFO, target_column
 }
 
 // ----------------------------------------------------------------------------- generateRepairTable
-function generateRepairTable(target_table, res, target_column) {
+// function generateRepairTable(target_table, res, target_column) {
 
-    // Note : les réparations doivent se faire avant la query donnée donc...
-    // il faut récupérer les données avant la query
+//     // Note : les réparations doivent se faire avant la query donnée donc...
+//     // il faut récupérer les données avant la query
+//     res = alasql('SELECT * FROM ' + target_table);
+//     // Ou pas ???? TODO... ici on part d'un simple select.. a verifier en cas de jointure etc...
+
+//     // Quid de plusieurs pk différentes mais érronées ?
+//     // -> dans ce cas il faut garder a l'esprit que la base doit être cohérente
+//     // donc un seul paris, et un seul madrid... (exemple)
+
+//     let grouped = {};
+//     res.forEach((item, index) => {
+//         if (!grouped[item[target_column]]) {
+//             grouped[item[target_column]] = [];
+//         }
+//         grouped[item[target_column]].push(index);
+//     });
+//     // Trouver les éléments ayant plusieurs occurrences
+//     let duplicates = Object.values(grouped).filter(indices => indices.length > 1);
+
+//     // Générer les listes en supprimant un élément dupliqué à la fois
+//     let results = [];
+//     duplicates.forEach(indices => {
+//         indices.forEach(indexToRemove => {
+//             let newList = res.filter((_, idx) => idx !== indexToRemove);
+//             results.push(newList);
+//         });
+//     });
+//     return results;
+// }
+
+// version révisée : 
+function generateRepairTable(target_table, res, target_column) {
+    // Récupérer les données avant la requête
     res = alasql('SELECT * FROM ' + target_table);
-    // Ou pas ???? TODO... ici on part d'un simple select.. a verifier en cas de jointure etc...
 
     let grouped = {};
     res.forEach((item, index) => {
@@ -344,19 +374,35 @@ function generateRepairTable(target_table, res, target_column) {
         }
         grouped[item[target_column]].push(index);
     });
-    // Trouver les éléments ayant plusieurs occurrences
-    let duplicates = Object.values(grouped).filter(indices => indices.length > 1);
 
-    // Générer les listes en supprimant un élément dupliqué à la fois
-    let results = [];
-    duplicates.forEach(indices => {
-        indices.forEach(indexToRemove => {
-            let newList = res.filter((_, idx) => idx !== indexToRemove);
-            results.push(newList);
+    // Trouver les groupes de doublons
+    let duplicateGroups = Object.values(grouped).filter(indices => indices.length > 1);
+
+    // Générer toutes les réparations minimales
+    function generateRepairs(groups, currentRepair, depth) {
+        if (depth === groups.length) {
+            results.push(currentRepair);
+            return;
+        }
+
+        let currentGroup = groups[depth];
+
+        // Pour chaque élément de ce groupe, on le garde et on supprime les autres
+        currentGroup.forEach(indexToKeep => {
+            let newRepair = currentRepair.filter((_, idx) => 
+                !currentGroup.includes(idx) || idx === indexToKeep
+            );
+            generateRepairs(groups, newRepair, depth + 1);
         });
-    });
+    }
+
+    let results = [];
+    generateRepairs(duplicateGroups, res, 0);
     return results;
 }
+
+
+
 
 // ----------------------------------------------------------------------------- isAllListsIdentical
 function isAllListsIdentical(lists) {
