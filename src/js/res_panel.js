@@ -8,6 +8,7 @@ var statements_index = 1;
 const containerRes = document.getElementById('container_res');
 
 // - Functions
+// ---------------------------------------------------------------------------------------- resParse
 function resParse(sql, res) {
 
     // - Statements
@@ -79,6 +80,18 @@ function resParse(sql, res) {
         } else {
             pk_error = false;
         }
+        // ---------------------------------------------------------------------
+        // Colonne cible (id)
+        // On récupère la colonne cible
+        var target_column = '';
+        if (type == 'SELECT') {
+            target_column = target_table_dom.querySelector('.pk').getAttribute('name');
+        }
+
+        // ---------------------------------------------------------------------
+        // Certainty
+        // On vérifie la certitude de la query
+        var certainty_res = certainty(normalize_query, type, target_table, res, pk_error, isFO, target_column);
 
         // ---------------------------------------------------------------------
         // On push dans statements :
@@ -90,8 +103,11 @@ function resParse(sql, res) {
             reason: reason,
             res: res,
             table: target_table,
-            pk_error: pk_error
+            column_id: target_column,
+            pk_error: pk_error,
+            certainty: certainty_res
         };
+
         statements.push(new_statement);
         statements_index++;
 
@@ -101,7 +117,7 @@ function resParse(sql, res) {
     }
 };
 
-
+// --------------------------------------------------------------------------------- isFOExpressible
 function isFOExpressible(query, type) {
     var isFO = false;
 
@@ -137,6 +153,10 @@ function isFOExpressible(query, type) {
     return [true, ''];
 }
 
+
+
+
+// ------------------------------------------------------------------------------ renderNewStatement
 function renderNewStatement(statement) {
     //hide the no result message
     document.getElementById('res_null').style.display = 'none';
@@ -214,7 +234,7 @@ function renderNewStatement(statement) {
         div.appendChild(div_isFO);
 
 
-        //res (table) -- Uniquement si Certainty
+        //res (table) -- Uniquement si Certainty...
         var table_container = document.createElement('div');
         table_container.classList.add('res_table_container');
         div.appendChild(table_container);
@@ -245,4 +265,68 @@ function renderNewStatement(statement) {
 
 
     containerRes.appendChild(div);
+}
+
+// --------------------------------------------------------------------------------------- certainty
+function certainty(query, type, target_table, res, pk_error, isFO, target_column) {
+    /*
+    */
+    if (type != 'SELECT') {
+        return true;
+    }
+    // Si la table cible n'a pas d'erreur
+    if (!pk_error) {
+        return true;
+    }
+    // Si c'est pas exprimable en FO
+    if (!isFO) {
+        return false;
+    }
+    // Il faut générer les tables avec le moins possibles de réparations
+    repair_table = generateRepairTable(target_table, res, target_column);
+    console.log(repair_table);
+
+    return true;
+}
+
+// ----------------------------------------------------------------------------- generateRepairTable
+function generateRepairTable(target_table, res, target_column) {
+
+    // Note : les réparations doivent se faire avant la query donnée donc...
+    // il faut récupérer les données avant la query
+    //res = alasql('SELECT * FROM ' + target_table);
+    // Ou pas ???? TODO
+
+    let grouped = {};
+    res.forEach((item, index) => {
+        if (!grouped[item[target_column]]) {
+            grouped[item[target_column]] = [];
+        }
+        grouped[item[target_column]].push(index);
+    });
+    // Trouver les éléments ayant plusieurs occurrences
+    let duplicates = Object.values(grouped).filter(indices => indices.length > 1);
+
+    // Générer les listes en supprimant un élément dupliqué à la fois
+    let results = [];
+    duplicates.forEach(indices => {
+        indices.forEach(indexToRemove => {
+            let newList = res.filter((_, idx) => idx !== indexToRemove);
+            results.push(newList);
+        });
+    });
+    return results;
+}
+
+// ----------------------------------------------------------------------------- isAllListsIdentical
+function isAllListsIdentical(lists) {
+    if (lists.length === 0) return true;
+    // Fonction de normalisation : trie les objets et les transforme en string JSON
+    const normalize = list => JSON.stringify(
+        list.map(obj => JSON.stringify(obj)).sort()
+    );
+    // Prendre la version normalisée de la première liste comme référence
+    const reference = normalize(lists[0]);
+    // Vérifier que toutes les autres listes sont identiques à la référence
+    return lists.every(list => normalize(list) === reference);
 }
