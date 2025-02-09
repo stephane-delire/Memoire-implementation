@@ -68,7 +68,7 @@
     background-color: #d7ffdc;
 }
 
-.res_isFO {
+.res_isFO, .res_certainty {
     color: #666;
     font-size: 14px;
     margin-left: 5px;

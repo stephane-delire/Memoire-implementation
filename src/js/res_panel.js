@@ -154,8 +154,6 @@ function isFOExpressible(query, type) {
 }
 
 
-
-
 // ------------------------------------------------------------------------------ renderNewStatement
 function renderNewStatement(statement) {
     //hide the no result message
@@ -235,32 +233,74 @@ function renderNewStatement(statement) {
 
 
         //res (table) -- Uniquement si Certainty...
-        var table_container = document.createElement('div');
-        table_container.classList.add('res_table_container');
-        div.appendChild(table_container);
-        var table = document.createElement('table');
-        table.classList.add('res_table');
-        var thead = document.createElement('thead');
-        var tr = document.createElement('tr');
-        for (const key in statement.res[0]) {
-            var th = document.createElement('th');
-            th.innerHTML = key;
-            tr.appendChild(th);
-        }
-        thead.appendChild(tr);
-        table.appendChild(thead);
-        var tbody = document.createElement('tbody');
-        for (const row of statement.res) {
+        if (statement.certainty[0]) {
+            var div_certainty = document.createElement('div');
+            div_certainty.classList.add('res_certainty');
+            div_certainty.innerHTML = 'Certitude : ' + statement.certainty[0];
+            div.appendChild(div_certainty);
+
+            var table_container = document.createElement('div');
+            table_container.classList.add('res_table_container');
+            div.appendChild(table_container);
+            var table = document.createElement('table');
+            table.classList.add('res_table');
+            var thead = document.createElement('thead');
             var tr = document.createElement('tr');
-            for (const key in row) {
-                var td = document.createElement('td');
-                td.innerHTML = row[key];
-                tr.appendChild(td);
+            for (const key in statement.res[0]) {
+                var th = document.createElement('th');
+                th.innerHTML = key;
+                tr.appendChild(th);
             }
-            tbody.appendChild(tr);
+            thead.appendChild(tr);
+            table.appendChild(thead);
+            var tbody = document.createElement('tbody');
+            for (const row of statement.res) {
+                var tr = document.createElement('tr');
+                for (const key in row) {
+                    var td = document.createElement('td');
+                    td.innerHTML = row[key];
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+            table.appendChild(tbody);
+            table_container.appendChild(table);
+        } else {
+            // Certitude : Non... 
+            var div_certainty = document.createElement('div');
+            div_certainty.classList.add('res_certainty');
+            div_certainty.innerHTML = 'Certitude : ' + statement.certainty[0];
+            div.appendChild(div_certainty);
+            // Réparations
+            for (const repair of statement.certainty[1]) {
+                var table_container = document.createElement('div');
+                table_container.classList.add('res_table_container');
+                div.appendChild(table_container);
+                var table = document.createElement('table');
+                table.classList.add('res_table');
+                var thead = document.createElement('thead');
+                var tr = document.createElement('tr');
+                for (const key in repair[0]) {
+                    var th = document.createElement('th');
+                    th.innerHTML = key;
+                    tr.appendChild(th);
+                }
+                thead.appendChild(tr);
+                table.appendChild(thead);
+                var tbody = document.createElement('tbody');
+                for (const row of repair) {
+                    var tr = document.createElement('tr');
+                    for (const key in row) {
+                        var td = document.createElement('td');
+                        td.innerHTML = row[key];
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
+                table_container.appendChild(table);
+            }
         }
-        table.appendChild(tbody);
-        table_container.appendChild(table);
     }
 
 
@@ -272,21 +312,21 @@ function certainty(query, type, target_table, res, pk_error, isFO, target_column
     /*
     */
     if (type != 'SELECT') {
-        return true;
+        return [true, 'Not a SELECT statement'];
     }
     // Si la table cible n'a pas d'erreur
     if (!pk_error) {
-        return true;
+        return [true, 'No error'];
     }
     // Si c'est pas exprimable en FO
     if (!isFO) {
-        return false;
+        return [false, 'Not FO'];
     }
     // Il faut générer les tables avec le moins possibles de réparations
     repair_table = generateRepairTable(target_table, res, target_column);
     console.log(repair_table);
 
-    return true;
+    return [isAllListsIdentical(repair_table), repair_table];
 }
 
 // ----------------------------------------------------------------------------- generateRepairTable
@@ -294,8 +334,8 @@ function generateRepairTable(target_table, res, target_column) {
 
     // Note : les réparations doivent se faire avant la query donnée donc...
     // il faut récupérer les données avant la query
-    //res = alasql('SELECT * FROM ' + target_table);
-    // Ou pas ???? TODO
+    res = alasql('SELECT * FROM ' + target_table);
+    // Ou pas ???? TODO... ici on part d'un simple select.. a verifier en cas de jointure etc...
 
     let grouped = {};
     res.forEach((item, index) => {
