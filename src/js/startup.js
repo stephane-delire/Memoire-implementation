@@ -7,7 +7,7 @@ alasql("INSERT INTO cities2 VALUES ('Paris',2249975),('Berlin',3517424),('Madrid
 
 
 
-alasql("CREATE TABLE one (id NVARCHAR(3));")
+alasql("CREATE TABLE one (id NVARCHAR(3), PRIMARY KEY(id));")
 alasql("CREATE TABLE two (id NVARCHAR(3));")
 alasql("CREATE TABLE three (id NVARCHAR(3));")
 
