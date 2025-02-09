@@ -362,7 +362,46 @@ function certainty(query, type, target_table, res, pk_error, isFO, target_column
 //     return results;
 // }
 
-// version révisée : 
+// version révisée : fonctionnel quand une seule valeur est erronée (ex: Paris plusieurs fois)
+// function generateRepairTable(target_table, res, target_column) {
+//     // Récupérer les données avant la requête
+//     res = alasql('SELECT * FROM ' + target_table);
+
+//     let grouped = {};
+//     res.forEach((item, index) => {
+//         if (!grouped[item[target_column]]) {
+//             grouped[item[target_column]] = [];
+//         }
+//         grouped[item[target_column]].push(index);
+//     });
+
+//     // Trouver les groupes de doublons
+//     let duplicateGroups = Object.values(grouped).filter(indices => indices.length > 1);
+
+//     // Générer toutes les réparations minimales
+//     function generateRepairs(groups, currentRepair, depth) {
+//         if (depth === groups.length) {
+//             results.push(currentRepair);
+//             return;
+//         }
+
+//         let currentGroup = groups[depth];
+
+//         // Pour chaque élément de ce groupe, on le garde et on supprime les autres
+//         currentGroup.forEach(indexToKeep => {
+//             let newRepair = currentRepair.filter((_, idx) => 
+//                 !currentGroup.includes(idx) || idx === indexToKeep
+//             );
+//             generateRepairs(groups, newRepair, depth + 1);
+//         });
+//     }
+
+//     let results = [];
+//     generateRepairs(duplicateGroups, res, 0);
+//     return results;
+// }
+
+// Version 3
 function generateRepairTable(target_table, res, target_column) {
     // Récupérer les données avant la requête
     res = alasql('SELECT * FROM ' + target_table);
@@ -372,34 +411,35 @@ function generateRepairTable(target_table, res, target_column) {
         if (!grouped[item[target_column]]) {
             grouped[item[target_column]] = [];
         }
-        grouped[item[target_column]].push(index);
+        grouped[item[target_column]].push(item);
     });
 
-    // Trouver les groupes de doublons
-    let duplicateGroups = Object.values(grouped).filter(indices => indices.length > 1);
+    // Extraire les groupes avec doublons
+    let duplicateGroups = Object.values(grouped).filter(group => group.length > 1);
 
-    // Générer toutes les réparations minimales
-    function generateRepairs(groups, currentRepair, depth) {
-        if (depth === groups.length) {
-            results.push(currentRepair);
+    // Générer toutes les combinaisons possibles en conservant exactement une valeur par clé en conflit
+    function generateRepairs(groups, index, currentRepair) {
+        if (index === groups.length) {
+            results.push([...currentRepair]); // Ajouter la réparation complète
             return;
         }
 
-        let currentGroup = groups[depth];
+        let currentGroup = groups[index];
 
-        // Pour chaque élément de ce groupe, on le garde et on supprime les autres
-        currentGroup.forEach(indexToKeep => {
-            let newRepair = currentRepair.filter((_, idx) => 
-                !currentGroup.includes(idx) || idx === indexToKeep
+        // Essayer chaque possibilité de garder une seule occurrence
+        currentGroup.forEach(choice => {
+            let newRepair = currentRepair.filter(item => 
+                !currentGroup.includes(item) || item === choice // Garde uniquement l'élément choisi
             );
-            generateRepairs(groups, newRepair, depth + 1);
+            generateRepairs(groups, index + 1, newRepair);
         });
     }
 
     let results = [];
-    generateRepairs(duplicateGroups, res, 0);
+    generateRepairs(duplicateGroups, 0, res);
     return results;
 }
+
 
 
 
