@@ -79,6 +79,24 @@ function renderTable(){
         tableElement.appendChild(tbody);
         // - Append table to container
         containerTable.appendChild(tableElement);
+
+        // check pk contraint, need to verify if pk is unique, otherwise add error class on the tds
+        const pk_tds = document.querySelectorAll(`#table_${table} td[pk=true]`);
+        const pk_values = [];
+        pk_tds.forEach(td => {
+            pk_values.push(td.textContent);
+        });
+        // check if pk_values contains duplicates
+        const duplicates = pk_values.filter((value, index) => pk_values.indexOf(value) !== index);
+        if (duplicates.length > 0){
+            pk_tds.forEach(td => {
+                if (duplicates.includes(td.textContent)){
+                    td.classList.add('error');
+                }
+            });
+        }
+        
+
     }
 }
 

@@ -31,3 +31,6 @@
 .pk {
     text-decoration: underline;
 }
+.pk.error {
+    color: red;
+}
