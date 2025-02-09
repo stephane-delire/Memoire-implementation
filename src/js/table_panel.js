@@ -84,13 +84,13 @@ function renderTable(){
         const pk_tds = document.querySelectorAll(`#table_${table} td[pk=true]`);
         const pk_values = [];
         pk_tds.forEach(td => {
-            pk_values.push(td.textContent);
+            pk_values.push(td.getAttribute('name'));
         });
         // check if pk_values contains duplicates
         const duplicates = pk_values.filter((value, index) => pk_values.indexOf(value) !== index);
         if (duplicates.length > 0){
             pk_tds.forEach(td => {
-                if (duplicates.includes(td.textContent)){
+                if (duplicates.includes(td.getAttribute('name'))){
                     td.classList.add('error');
                 }
             });
