@@ -1,3 +1,8 @@
+#res_panel {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
 #container_res {
     display: flex;
     flex-direction: column;
