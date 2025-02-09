@@ -34,3 +34,9 @@
 .pk.error {
     color: red;
 }
+.errorIndex {
+    font-size: 10px;
+    height: 14px;
+    vertical-align: middle;
+    display: inline-block;
+}

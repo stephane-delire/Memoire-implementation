@@ -89,9 +89,15 @@ function renderTable(){
         // check if pk_values contains duplicates
         const duplicates = pk_values.filter((value, index) => pk_values.indexOf(value) !== index);
         if (duplicates.length > 0){
+            var i = 1;
             pk_tds.forEach(td => {
                 if (duplicates.includes(td.getAttribute('name'))){
                     td.classList.add('error');
+                    td.setAttribute('error', 'duplicate PK');
+                    td.innerHTML = td.textContent + ' <span class="errorIndex">(' + i + ')</span>';
+                    i++;
+                    // insert an attribute to the table
+                    tableElement.setAttribute('error', 'True');
                 }
             });
         }
