@@ -272,6 +272,13 @@ function renderNewStatement(statement) {
             div_certainty.innerHTML = 'Certitude : ' + statement.certainty[0];
             div.appendChild(div_certainty);
             // Réparations
+            var div_repair = document.createElement('div');
+            div_repair.classList.add('res_repair');
+            var div_repair_title = document.createElement('div');
+            div_repair_title.classList.add('res_repair_title');
+            div_repair_title.innerHTML = 'Réparations :';
+            div.appendChild(div_repair_title);
+
             for (const repair of statement.certainty[1]) {
                 var table_container = document.createElement('div');
                 table_container.classList.add('res_table_container');
@@ -299,7 +306,9 @@ function renderNewStatement(statement) {
                 }
                 table.appendChild(tbody);
                 table_container.appendChild(table);
+                div_repair.appendChild(table_container);
             }
+            div.appendChild(div_repair);
         }
     }
 

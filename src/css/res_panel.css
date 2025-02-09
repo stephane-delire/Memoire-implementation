@@ -75,6 +75,21 @@
     text-align: center;
 }
 
+.res_repair {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    row-gap: 10px;
+    column-gap: 10px;
+}
+.res_repair_title {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
 .res_table_container {
     display: flex;
     justify-content: center;
