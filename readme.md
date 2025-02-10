@@ -42,11 +42,15 @@ open main.html   # ou double-cliquer sur index.html
 ```
 📂 src
 ├── 📂 css
-│   └─ 📄 fonts.css
+│   ├─ 📄 fonts.css
 │   ├─ 📄 main.css
+│   ├─ 📄 res_panel.css
+│   ├─ 📄 scroll_bar.css
+│   ├─ 📄 sql_panel.css
+│   └─ 📄 toolbar.css
 ├── 📂 fonts
 ├── 📂 img
 ├── 📂 js
-├── 📄 main.html                                          # Interface principale
-└── 📄 README.md                                          # Documentation du projet (ce fichier)
+├── 📄 main.html                               # Interface principale
+└── 📄 README.md                               # Documentation du projet (ce fichier)
 ```
