@@ -42,15 +42,26 @@ open main.html   # ou double-cliquer sur index.html
 ```
 📂 src
 ├── 📂 css
-│   ├─ 📄 fonts.css
-│   ├─ 📄 main.css
-│   ├─ 📄 res_panel.css
-│   ├─ 📄 scroll_bar.css
-│   ├─ 📄 sql_panel.css
-│   └─ 📄 toolbar.css
+│   ├── 📄 fonts.css
+│   ├── 📄 main.css
+│   ├── 📄 res_panel.css
+│   ├── 📄 scroll_bar.css
+│   ├── 📄 sql_panel.css
+│   └── 📄 toolbar.css
 ├── 📂 fonts
+│   ├── Roboto-Regular.ttf
+│   └── RobotoMono-Medium.ttf
 ├── 📂 img
+│   └── ...
 ├── 📂 js
-├── 📄 main.html                               # Interface principale
-└── 📄 README.md                               # Documentation du projet (ce fichier)
+│   ├── 📄 alasql_beautified.js
+│   ├── 📄 main.js
+│   ├── 📄 res_panel.js
+│   ├── 📄 sql_panel.js
+│   ├── 📄 startup.js
+│   ├── 📄 table_panel.js
+│   └── 📄 toolbar.js
+└── 📂 svg
+📄 main.html                               # Interface principale
+📄 README.md                               # Documentation du projet (ce fichier)
 ```
