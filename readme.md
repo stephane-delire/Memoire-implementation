@@ -52,7 +52,6 @@ open main.html   # ou double-cliquer sur index.html
 │   ├── Roboto-Regular.ttf
 │   └── RobotoMono-Medium.ttf
 ├── 📂 img
-│   └── ...
 ├── 📂 js
 │   ├── 📄 alasql_beautified.js
 │   ├── 📄 main.js
