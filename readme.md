@@ -39,6 +39,7 @@ open main.html   # ou double-cliquer sur index.html
 ````
 
 ## Structure
+```
 📂 src
 ├── 📂 css
 │   └─ 📄 fonts.css
@@ -48,3 +49,4 @@ open main.html   # ou double-cliquer sur index.html
 ├── 📂 js
 ├── 📄 main.html                                          # Interface principale
 └── 📄 README.md                                          # Documentation du projet (ce fichier)
+```
