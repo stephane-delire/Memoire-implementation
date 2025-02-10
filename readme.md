@@ -37,3 +37,14 @@ git clone https://github.com/stephane-delire/Memoire-implementation.git
 cd Memoire-implementation
 open main.html   # ou double-cliquer sur index.html
 ````
+
+## Structure
+📂 src
+├── 📂 css
+│   └─ 📄 fonts.css
+│   ├─ 📄 main.css
+├── 📂 fonts
+├── 📂 img
+├── 📂 js
+├── 📄 main.html                                          # Interface principale
+└── 📄 README.md                                          # Documentation du projet (ce fichier)
