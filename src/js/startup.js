@@ -1,27 +1,20 @@
 console.log('startup script loaded');
-alasql("CREATE TABLE cities (city string, pop number, PRIMARY KEY(city))");
-alasql("INSERT INTO cities VALUES ('Paris',2249975),('Berlin',3517424),('Madrid',3041579)");
+alasql("CREATE TABLE example (town string, country string, michelin string ,PRIMARY KEY(town))");
+alasql("INSERT INTO example VALUES ('Mons','Belgium','*')");
+alasql("INSERT INTO example VALUES ('Bruxelles','Belgium','**')");
+alasql("INSERT INTO example VALUES ('Paris','France','**')");
 
-alasql("CREATE TABLE cities2 (city string, pop number)");
-alasql("INSERT INTO cities2 VALUES ('Paris',2249975),('Berlin',3517424),('Madrid',3041579)");
+const tool_deactivate_constraints = document.getElementById('tool_deactivate_constraints');
+tool_deactivate_constraints.click();
 
+alasql("INSERT INTO example VALUES ('Mons','Belgium','**')");
 
-
-alasql("CREATE TABLE one (id NVARCHAR(3), PRIMARY KEY(id));")
-alasql("CREATE TABLE two (id NVARCHAR(3));")
-alasql("CREATE TABLE three (id NVARCHAR(3));")
-
-alasql("INSERT INTO one VALUES ('A'),('AB'),('AC'),('ABC');")
-alasql("INSERT INTO two VALUES ('B'),('AB'),('BC'),('ABC');")
-alasql("INSERT INTO three VALUES ('C'),('BC'),('AC'),('ABC');")
+sqlTextarea.value = "SELECT * FROM example;";
+executeSQL();
 
 
-setTimeout(() => {
-    sqlTextarea.value = "SELECT * FROM cities;";
-    executeSQL();
-    // sqlTextarea.value = "Insert into cities value ('Paris', 4000000);";
-    // executeSQL();
-    sqlTextarea.value = "select sum(pop) as population, city as ville from cities group by city;";
-    executeSQL();
-    sqlTextarea.value = "Insert into cities value ('Paris', 4000000);";
-}, 1000);
+sqlTextarea.value = "SELECT town FROM example where country = 'Belgium';";
+/*
+SELECT town FROM example where country = 'Belgium';
+Devait retourner true pour certainty...
+*/
