@@ -333,12 +333,11 @@ function certainty(query, type, target_table, res, pk_error, isFO, target_column
     }
     // Il faut générer les tables avec le moins possibles de réparations
     repair_table = generateRepairTable(target_table, res, target_column);
-    console.log(repair_table);
-    // TODO
-    // Executer la query sur ces réparations, si ces réparations sont identiques, alors c'est certain CERTAINTY
-
+    // Executer la query sur ces réparations, si ces réparations sont identiques, alors c'est certain CERTAINTY -> true
+    repair_table_queried = queryOnRepairs(query, repair_table, target_table);
     // En attendant, on ne fait pas les requêtes.. on vérifie simplement si les réparations sont identiques
-    return [isAllListsIdentical(repair_table), repair_table];
+    return [isAllListsIdentical(repair_table_queried), repair_table];
+
 }
 
 // ----------------------------------------------------------------------------- generateRepairTable
@@ -397,4 +396,24 @@ function isAllListsIdentical(lists) {
     const reference = normalize(lists[0]);
     // Vérifier que toutes les autres listes sont identiques à la référence
     return lists.every(list => normalize(list) === reference);
+}
+
+// ---------------------------------------------------------------------------------- queryOnRepairs
+function queryOnRepairs(query, repairs, target_table) {
+    results = [];
+    // modifier la requete pour qu'elle utilise la table temporaire
+    query = query.replace(target_table, 'temp_table');
+    for (const repair of repairs) {
+        // Créer la table temporaire
+        alasql('CREATE TABLE temp_table');
+        // Insérer les données de la réparation
+        repair.forEach(row => {
+            alasql('INSERT INTO temp_table VALUES ?', [row]);
+        });
+        // Exécuter la requête
+        results.push(alasql(query));
+        // Supprimer la table temporaire
+        alasql('DROP TABLE temp_table');
+    }
+    return results;
 }
