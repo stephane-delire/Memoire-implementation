@@ -9,4 +9,4 @@ cd /home/azureuser/Memoire-implementation
 git pull origin main
 
 # On redémarre le sservice (serveur)
-sudo systemctl restart arewal-server.service
+sudo systemctl restart cqa_server.service
