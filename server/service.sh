@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Starting service"
 cd /home/azureuser/venv
 echo "Activating virtual environment"
