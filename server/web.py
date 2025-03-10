@@ -2,6 +2,7 @@ from flask import Flask, request, send_file, send_from_directory, abort
 from waitress import serve
 import subprocess
 import os
+import json
 
 app = Flask(__name__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,10 +30,15 @@ def static_file(path):
 # Update route
 @app.route('/update', methods=['POST'])
 def update_server():
-    # Print the received data
-    print(request.data)
-    # print the header
-    print(request.headers)
+    try:
+        req = json.loads(request.data)
+    except:
+        return 'Invalid JSON', 400
+    if 'pusher' not in req:
+        return 'Invalid JSON', 400
+        if req['pusher']["name"] != "stephane-delire":
+            return 'Invalid', 400
+    
     # Exécute le script de mise à jour
     process = subprocess.run(["./update.sh"], capture_output=True, text=True)
     return ''
