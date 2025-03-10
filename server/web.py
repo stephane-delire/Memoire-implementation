@@ -29,6 +29,10 @@ def static_file(path):
 # Update route
 @app.route('/update', methods=['POST'])
 def update_server():
+    # Print the received data
+    print(request.data)
+    # print the header
+    print(request.headers)
     # Exécute le script de mise à jour
     process = subprocess.run(["./update.sh"], capture_output=True, text=True)
     return ''
