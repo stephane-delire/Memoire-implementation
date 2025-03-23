@@ -231,6 +231,18 @@ function renderNewStatement(statement) {
         }
         div.appendChild(div_isFO);
 
+        //logical rendering
+        if (statement.isFO) {
+            var formula = logicalQueryRendering(statement.query);
+            var div_formula = document.createElement('div');
+            div_formula.classList.add('res_formula');
+            div_formula.innerHTML = `$$${formula}$$`;
+            div.appendChild(div_formula);
+            setTimeout(() => {
+                MathJax.typesetPromise();
+            }, 100);
+        }
+
 
         //res (table) -- Uniquement si Certainty...
         if (statement.certainty[0]) {
