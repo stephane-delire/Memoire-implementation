@@ -94,6 +94,30 @@ function resParse(sql, res) {
         var certainty_res = certainty(normalize_query, type, target_table, res, pk_error, isFO, target_column);
 
         // ---------------------------------------------------------------------
+        // On refait la query pour récupérer les résultats
+        // On ne fait pas la requête si la certitude est fausse
+        // mais on a besoin de refaire la query initial pour récupérer les résultats
+        // correctes (sinon on récupere les doublons)
+        if (certainty_res[0]) {
+            console.log('Certitude : ' + certainty_res[0]);
+            // reprendre une repair table
+            var repair_table = certainty_res[1][0];
+            // Créer la table temporaire
+            alasql('CREATE TABLE temp_table');
+            // Insérer les données de la réparation
+            repair_table.forEach(row => {
+                alasql('INSERT INTO temp_table VALUES ?', [row]);
+            });
+            // modifier la requete pour qu'elle utilise la table temporaire
+            temp_query = normalize_query.replace(target_table, 'temp_table');
+            // Exécuter la requête
+            var res = alasql(temp_query);
+            // Supprimer la table temporaire
+            alasql('DROP TABLE temp_table');
+
+        }
+
+        // ---------------------------------------------------------------------
         // On push dans statements :
         var new_statement = {
             id: statements_index,
