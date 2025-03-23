@@ -25,9 +25,9 @@ function logicalQueryRendering(query) {
     let formula = "";
 
     if (condition) {
-        formula = `\\{ ${selectVar} \\mid \\exists a\\ ${relation}(${selectVar}, a) \\land ${escapeLatex(condition)} \\}`;
+        formula = `\\ Q( ${selectVar} ) : \\exists a\\ ${relation}(${selectVar}, a) \\land ${escapeLatex(condition)} `;
     } else {
-        formula = `\\{ ${selectVar} \\mid ${relation}(${selectVar}) \\}`;
+        formula = `\\ Q( ${selectVar} ) : ${relation}(${selectVar}) `;
     }
 
     // document.getElementById("foFormula").innerHTML = `$$${formula}$$`;
