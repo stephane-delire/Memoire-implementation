@@ -99,7 +99,6 @@ function resParse(sql, res) {
         // mais on a besoin de refaire la query initial pour récupérer les résultats
         // correctes (sinon on récupere les doublons)
         if (certainty_res[0]) {
-            console.log('Certitude : ' + certainty_res[0]);
             // reprendre une repair table
             var repair_table = certainty_res[1][0];
             // Créer la table temporaire
