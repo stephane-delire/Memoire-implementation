@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CQA JS Demo</title>
+</head>
+<body>
+  <textarea id="input" rows="20" cols="80"></textarea><br>
+  <button onclick="run()">Run CQA</button>
+  <pre id="output"></pre>
+
+  <script>
+    function parseInput(text) {
+      const db = {};
+      let query = [];
+      const lines = text.trim().split('\n');
+      let mode = null;
+
+      for (let line of lines) {
+        line = line.trim();
+        if (line.startsWith('@database')) {
+          mode = 'db';
+          continue;
+        }
+        if (line.startsWith('@query')) {
+          mode = 'query';
+          continue;
+        }
+        if (!line || line.startsWith('#')) continue;
+
+        const match = line.match(/(not )?(\w+)\(([^;]*);?([^)]*)\)/);
+        if (!match) continue;
+
+        const negated = !!match[1];
+        const rel = match[2];
+        const key = match[3].split(',').map(s => s.trim()).filter(x => x);
+        const rest = match[4].split(',').map(s => s.trim()).filter(x => x);
+        const tuple = [...key, ...rest];
+
+        if (mode === 'db') {
+          if (!db[rel]) db[rel] = [];
+          db[rel].push({ key, rest, tuple });
+        } else if (mode === 'query') {
+          query.push({ negated, rel, vars: [...key, ...rest] });
+        }
+      }
+
+      return { db, query };
+    }
+
+    function groupByKey(rel) {
+      const map = new Map();
+      for (const t of rel) {
+        const keyStr = JSON.stringify(t.key);
+        if (!map.has(keyStr)) map.set(keyStr, []);
+        map.get(keyStr).push(t);
+      }
+      return map;
+    }
+
+    function generateRepairs(rel) {
+      const blocks = groupByKey(rel);
+      const repairs = [[]];
+
+      for (const block of blocks.values()) {
+        const newRepairs = [];
+        for (const t of block) {
+          for (const rep of repairs) {
+            newRepairs.push([...rep, t]);
+          }
+        }
+        repairs.splice(0, repairs.length, ...newRepairs);
+      }
+
+      return repairs;
+    }
+
+    function evaluateQuery(db, query, repair) {
+      const relMap = {};
+      for (const name in db) {
+        relMap[name] = repair.filter(t => t.rel === name).map(t => t.tuple);
+      }
+
+      const candidates = relMap[query[0].rel] || [];
+      const results = [];
+
+      for (const t of candidates) {
+        const env = {};
+        const vars = query[0].vars;
+        for (let i = 0; i < vars.length; i++) env[vars[i]] = t[i];
+
+        let valid = true;
+        for (let i = 1; i < query.length; i++) {
+          const atom = query[i];
+          const tupleTest = atom.vars.map(v => env[v] || v);
+          const exists = (relMap[atom.rel] || []).some(t => t.join(',') === tupleTest.join(','));
+          if ((atom.negated && exists) || (!atom.negated && !exists)) {
+            valid = false;
+            break;
+          }
+        }
+        if (valid) results.push(env);
+      }
+
+      return results.length > 0;
+    }
+
+    function run() {
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('output');
+
+      const { db, query } = parseInput(input);
+      const allRepairs = generateRepairs(db['Likes'] || []).map(repair => {
+        return [
+          ...(repair.map(t => ({ ...t, rel: 'Likes' }))),
+          ...((db['Lives'] || []).map(t => ({ ...t, rel: 'Lives' }))),
+          ...((db['Mayor'] || []).map(t => ({ ...t, rel: 'Mayor' })))
+        ];
+      });
+
+      const allHold = allRepairs.every(repair => evaluateQuery(db, query, repair));
+      output.textContent = allHold ? "yes" : "no";
+    }
+  </script>
+</body>
+</html>
