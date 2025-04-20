@@ -1,0 +1,10 @@
+@database
+Likes(John, Paris;)
+Lives(John; London)
+Mayor(Paris; Hidalgo)
+Mayor(London; Khan)
+
+@query
+Likes(p,t;)
+not Lives(p;t)
+not Mayor(t;p)
