@@ -35,16 +35,21 @@ class parseur:
         :param text: Le texte brut à parser.
         :return: Un dictionnaire python contenant les données du fichier.
         """
-
+        # Var
+        current = None
+        
+        # Parsing
         # ligne par ligne
         for raw in text.splitlines():
             line = raw.strip()
             if not line:
                 continue
             if line.startswith("@database") or line.startswith("@Database"):
-                current = "database"; continue
+                current = "database"
+                continue
             if line.startswith("@query") or line.startswith("@Query"):
-                current = "query";    continue
+                current = "query"
+                continue
             if current is None:
                 continue
             # Suppression des commentaires
@@ -53,7 +58,7 @@ class parseur:
                 continue
             print(line)
 
-        return parseur.parse_dsl(text)
+        # return parseur.parse_dsl(text)
 
     @staticmethod
     def parse_dsl(text: str) -> ParseResult:

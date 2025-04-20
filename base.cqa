@@ -1,3 +1,6 @@
+# Base donnée par Mr Wijsen
+# aucunes erreurs présentes
+
 @database
 Likes(John, Paris;)
 Lives(John; London)
