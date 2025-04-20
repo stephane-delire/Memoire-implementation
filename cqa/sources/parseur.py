@@ -36,6 +36,7 @@ class parseur:
         :return: Un dictionnaire python contenant les données du fichier.
         """
 
+        # ligne par ligne
         for raw in text.splitlines():
             line = raw.strip()
             if not line:
@@ -46,6 +47,11 @@ class parseur:
                 current = "query";    continue
             if current is None:
                 continue
+            # Suppression des commentaires
+            line = line.split("#", 1)[0].strip()
+            if not line:
+                continue
+            print(line)
 
         return parseur.parse_dsl(text)
 

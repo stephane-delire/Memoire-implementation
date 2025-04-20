@@ -1,0 +1,9 @@
+@database
+likes(john, Paris;)
+lives(john; London)
+lives(john; Paris)
+mayor(Paris; Hidalgo)
+mayor(Paris; Dupont)
+mayor(London; Khan)
+@query
+lives(john; Paris)
