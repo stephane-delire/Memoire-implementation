@@ -34,4 +34,4 @@ for i, rep in zip(range(10), gen):
 print(f"Certainty : {evaluate.is_certain(data)}")
 
 # certain answer (attention none) Déconne...
-# print(evaluate.certain_answers(data))
+print(evaluate.certain_answers(data))
