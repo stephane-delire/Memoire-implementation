@@ -1,11 +1,6 @@
 # evaluate.py  ──────────────────────────────────────────────────────────────
 """
 Boucle d'évaluation CQA.
-
-Usage :
-    >>> import evaluate, parser_module as P
-    >>> parsed = P.parse(open("instance.txt").read())
-    >>> res    = evaluate.certainty(parsed)      # True / False
 """
 
 from __future__ import annotations
@@ -21,9 +16,9 @@ Atom  = Tuple[bool, str, int, Tuple[str, ...]]
 Vars  = Dict[str, str]
 
 # ------------------------------------------------------------------ #
-#  API PRINCIPALE
+#  API 1
 # ------------------------------------------------------------------ #
-def certainty(parsed: Dict[str, List[Any]]) -> bool:
+def is_certain(parsed: Dict[str, List[Any]]) -> bool:
     """
     Retourne True si la requête est *certaine* (vraie dans toutes
     les réparations), False sinon.
@@ -131,3 +126,82 @@ def _no_match(db: List[Fact], atom: Atom, env: Vars) -> bool:
         if _unify(args, tup, env) is not None:
             return False
     return True
+
+
+# ---------------------------------------------------------------
+#  API 2 : réponses certaines quand la requête contient ≠0 var
+# ---------------------------------------------------------------
+def certain_answers(parsed):
+    """
+    Retourne :
+        • set([tuple])  – chaque tuple = valeurs des variables libres,
+        • ou {'yes'} / ∅ si la requête est fermée (constantes seulement)
+    """
+
+    free_vars = _free_variables(parsed["query"])
+    if not free_vars:                       # requête fermée → yes/no
+        return {'yes'} if is_certain(parsed) else set()
+
+    # 1)  tentative de réécriture FO
+    fo = rewriter.rewrite(parsed)
+    if fo:
+        return _answers_from_fo(fo, parsed["database"], free_vars)
+
+    # 2)  sinon : intersection sur les réparations
+    rep_info   = repairs.prepare(parsed["database"])
+    answers    = None
+    for rep in repairs.enumerate_repairs(rep_info):
+        ans_rep = _answers_on_instance(rep, parsed["query"], free_vars)
+        answers = ans_rep if answers is None else answers & ans_rep
+        if not answers:                     # intersection déjà vide
+            break
+    return answers or set()
+
+# ---------------------------------------------------------------
+#  utilitaires internes
+# ---------------------------------------------------------------
+def _free_variables(atoms):
+    return sorted({v for neg,_,_,args in atoms for v in args if v.islower()})
+
+def _answers_from_fo(node, db, free, env=None):
+    """collecte toutes les substitutions qui satisfont l’arbre FO"""
+    env = env or {}
+    op  = node["op"]
+    if op == "and":
+        envs = [env]
+        for ch in node["children"]:
+            envs = [e2 for e in envs for e2 in _answers_from_fo(ch, db, free, e)]
+        return {tuple(e[v] for v in free) for e in envs}
+
+    if op == "atom":
+        res = []
+        for _,_,tup in (f for f in db if f[0]==node["pred"]):
+            e2 = _unify(node["args"], tup, env)
+            if e2 is not None:
+                res.append(e2)
+        return res
+
+    if op == "not_exists":
+        # retourne env si la négation passe, sinon []
+        for _,_,tup in (f for f in db if f[0]==node["pred"]):
+            if all(tup_l==env.get(r,r) for tup_l,r in node["eq"]):
+                return []
+        return [env]
+
+def _answers_on_instance(db, atoms, free):
+    """énumère toutes les substitutions d'une conjonction sur UNE instance"""
+    envs=[{}]
+    for neg,pred,pk,args in atoms:
+        new=[]
+        if neg:
+            for env in envs:
+                if all(_unify(args,t[2],env) is None for t in db if t[0]==pred):
+                    new.append(env)
+        else:
+            for env in envs:
+                for _,_,tup in (f for f in db if f[0]==pred):
+                    e2=_unify(args,tup,env)
+                    if e2 is not None:
+                        new.append(e2)
+        envs=new
+    return {tuple(e[v] for v in free) for e in envs}

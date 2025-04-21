@@ -30,5 +30,8 @@ for i, rep in zip(range(10), gen):
     print(f"Réparation {i+1} : {rep}")
     pprint.pp(rep)
 
+# Certainty
+print(f"Certainty : {evaluate.is_certain(data)}")
 
-print(evaluate.certainty(data))
+# certain answer
+print(evaluate.certain_answers(data))
