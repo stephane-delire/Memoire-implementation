@@ -40,35 +40,58 @@ def is_certain(parsed: Dict[str, List[Any]]) -> bool:
 #  ÉVALUATION D'UNE RÉÉCRITURE FO
 # ------------------------------------------------------------------ #
 def _eval_fo(node: Dict[str, Any], db: List[Fact], env: Vars | None = None) -> bool:
-    """Évalue l’arbre FO produit par rewriter (existentiel + NOT‑EXISTS)."""
+    """
+    Évalue l’arbre FO :
+        • op='and'            — conjonction
+        • op='atom'           — atome positif
+        • op='not_exists'     — négatif corrélé (¬∃ …)
+        • op='not_exists_dup' — filtre anti‑doublon de l’algorithme 1
+    """
     if env is None:
         env = {}
 
     op = node["op"]
 
-    # &&  nœud conjonctif
+    # 1) conjonction
     if op == "and":
-        return all(_eval_fo(child, db, env) for child in node["children"])
+        return all(_eval_fo(c, db, env) for c in node["children"])
 
-    # atom  P(x, y, …)
+    # 2) atome positif  P(args)
     if op == "atom":
-        pred, args = node["pred"], node["args"]
+        pred, pat = node["pred"], node["args"]
         for _, _, tup in (f for f in db if f[0] == pred):
-            new = _unify(args, tup, env)
-            if new is not None:
-                return True             # ∃ substitution satisfaisante
-        return False                    # aucun fait ne matche
+            if _unify(pat, tup, env) is not None:
+                return True
+        return False
 
-    # NOT EXISTS  corrélé
+    # 3) NOT EXISTS corrélé sur la clé
     if op == "not_exists":
         pred, eq = node["pred"], node["eq"]
         for _, _, tup in (f for f in db if f[0] == pred):
-            # vérifie corrélations PK = valeurs déjà liées
-            if all(tup_left == env.get(right, right) for tup_left, right in eq):
-                return False            # un témoin existe → NOT EXISTS échoue
-        return True                     # aucun témoin → passe
+            if all(tup[i] == env.get(v, v) for i, v in enumerate(eq)):
+                return False
+        return True
 
-    raise ValueError(f"nœud FO inconnu : {op}")
+    # 4) NOT EXISTS eliminant les doublons de clé
+    if op == "not_exists_dup":
+        pred      = node['pred']
+        pk_vars   = node['pk_vars']          # variables de la PK (x₁…x_k)
+        nvars     = node['nvars']            # variables hors‑clé (x_{k+1}…)
+        pk_len    = node['pk_len']
+
+        # valeurs instanciées de la PK dans le pivot
+        pk_vals = [env.get(v, v) for v in pk_vars]
+
+        for _, _, tup in (f for f in db if f[0] == pred):
+            # (a)  même clé primaire ?
+            if all(tup[i] == pk_vals[i] for i in range(pk_len)):
+                # (b)  ET au moins un attribut non‑clé différent ?
+                if any(tup[pk_len + j] != env.get(nv, nv)
+                       for j, nv in enumerate(nvars)):
+                    return False          # doublon détecté ➜ filtre échoue
+        return True
+
+    raise ValueError(f"nœud FO inconnu : {op}")
 
 
 # ------------------------------------------------------------------ #

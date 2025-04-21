@@ -138,48 +138,63 @@ def _has_cycle(g: Dict[int, Set[int]]) -> bool:
 
 
 # --------------------------------------------------------------------------- #
-#  BUILD FO REWRITING   (Algorithme 1, Sec. 6.3)
+#  BUILD FO REWRITING   (Algorithme 1 de Koutris‑Wijsen, § 6.3)
 # --------------------------------------------------------------------------- #
 def _build_rewriting(all_atoms: List[Atom],
                      att_graph: Dict[int, Set[int]]) -> FO:
     """
-    Version TRÈS simplifiée : on suit texte §6.3
-      – Si chaque atome est « all‑key », la conjonction elle‑même suffit.
-      – Sinon, on choisit un atome **non‑attaqué** et non‑all‑key F ;
-        chaque atome négatif devient  NOT EXISTS (corrélée sur la PK).
-    L’arbre retourné est du type :
+    – Si tous les atomes positifs sont « all‑key » → la conjonction brute suffit
+      (cas le plus simple du théorème 8).
+    – Sinon on choisit un atome positif F qui (i) n’est PAS all‑key et
+      (ii) n’est attaqué par personne, puis on construit :
 
-        {'op':'and', 'children': [ Atom‑node, …, NotExists‑node, … ]}
+          F(x)                    ← l’atome pivot
+        ∧ ¬∃y [ F(y) ∧ samePK ∧ diffNonKey ]
+        ∧   (chaque littéral négatif devient NOT‑EXISTS corrélé sur la PK)
     """
-    # repérage d’un atome positif « pivot » F
+    # ─────────────────── 1.  choisir le pivot F  ────────────────────────────
     pivot_idx = None
     for idx, (neg, _, pk_len, args) in enumerate(all_atoms):
         if neg:
             continue
-        if pk_len != len(args) and not any(idx in s for s in att_graph.values()):
+        if pk_len != len(args) and not any(idx in succ for succ in att_graph.values()):
             pivot_idx = idx
             break
 
-    if pivot_idx is None:                   # tous all‑key → réécriture triviale
+    # cas « tout all‑key » : rewriting trivial
+    if pivot_idx is None:
         return {'op': 'and',
                 'children': [_atom_node(a) for a in all_atoms]}
 
+    pos_atom = all_atoms[pivot_idx]
+    pred, pk_len, full_args = pos_atom[1], pos_atom[2], pos_atom[3]
+    pk_vars    = full_args[:pk_len]                     # x₁,…,x_k
+    nonpk_vars = full_args[pk_len:]                     # x_{k+1},…
+
+    # ─────────────────── 2.  nœud principal + filtre anti‑doublon ───────────
+    atom_node = _atom_node(pos_atom)
+
+    dup_filter = {
+        'op'      : 'not_exists_dup',
+        'pred'    : pred,
+        'pk_vars' : pk_vars,            # variables de clé
+        'nvars'   : nonpk_vars,         # variables hors‑clé
+        'pk_len'  : pk_len
+    }
+
+    # ─────────────────── 3.  NOT‑EXISTS pour chaque littéral négatif ────────
     neg_nodes = []
-    pos_node  = _atom_node(all_atoms[pivot_idx])
-    pk_pivot  = all_atoms[pivot_idx][3][:all_atoms[pivot_idx][2]]
-
-    # chaque négatif  →  NOT EXISTS corrélée
-    for idx, atom in enumerate(all_atoms):
-        if not atom[0]:
+    for neg, p2, pk2, args2 in all_atoms:
+        if not neg:
             continue
-        pk_neg = atom[3][:atom[2]]
-        eq_pairs = [(pk_neg[i], pk_pivot[i])
-                    for i in range(len(pk_neg))]
-        neg_nodes.append({'op': 'not_exists',
-                          'pred': atom[1],
-                          'eq':   eq_pairs})
+        eq_pairs = [(args2[i], pk_vars[i]) for i in range(pk2)]
+        neg_nodes.append({
+            'op'  : 'not_exists',
+            'pred': p2,
+            'eq'  : eq_pairs
+        })
 
-    return {'op': 'and', 'children': [pos_node, *neg_nodes]}
+    return {'op': 'and', 'children': [atom_node, dup_filter, *neg_nodes]}
 
 
 # --------------------------------------------------------------------------- #

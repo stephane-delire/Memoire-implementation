@@ -5,9 +5,9 @@ import sources.rewriter as rewriter
 import sources.repairs as repairs
 import sources.evaluate as evaluate
 
-# with open("../base.cqa", "r") as f:
+with open("../base.cqa", "r") as f:
 # with open("../01-bool.cqa", "r") as f:
-with open("../02-args.cqa", "r") as f:
+# with open("../02-args.cqa", "r") as f:
     text = f.read()
 
 # Parse
@@ -33,5 +33,5 @@ for i, rep in zip(range(10), gen):
 # Certainty
 print(f"Certainty : {evaluate.is_certain(data)}")
 
-# certain answer
-print(evaluate.certain_answers(data))
+# certain answer (attention none) Déconne...
+# print(evaluate.certain_answers(data))
