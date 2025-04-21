@@ -3,6 +3,7 @@ import pprint
 from sources.parseur import Parseur
 import sources.rewriter as rewriter
 import sources.repairs as repairs
+import sources.evaluate as evaluate
 
 # with open("../base.cqa", "r") as f:
 # with open("../01-bool.cqa", "r") as f:
@@ -28,3 +29,6 @@ gen = repairs.enumerate_repairs(info)
 for i, rep in zip(range(10), gen):
     print(f"Réparation {i+1} : {rep}")
     pprint.pp(rep)
+
+
+print(evaluate.certainty(data))
