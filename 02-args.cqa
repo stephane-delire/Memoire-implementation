@@ -11,4 +11,4 @@ mayor(Paris; Dupont) # Incohérence 2
 mayor(London; Khan)
 
 @query
-lives(john; Paris) # Est-ce que John vit à Paris ?
+mayor(Paris; m) # Qui est le maire de Paris ?
