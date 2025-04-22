@@ -83,6 +83,10 @@ def _build_attack_graph(all_atoms: List[Atom]) -> Dict[int, Set[int]]:
          – Fermeture d’un ensemble de variables via les FD « clé→tout ».
          – Un arc  F→G  s’il existe  w∈key(F)  et  u∈key(G) tel que
            u est atteignable depuis w, et u ∉ key(F).
+    
+    FD : Foreign Dependency, c’est-à-dire une dépendance fonctionnelle
+    entre une clé primaire et l’ensemble des autres attributs.
+    
     """
     # ----  (1)  table des FD :   key(P)  ->   vars(P)  pour P ∈ q⁺  ----
     fds: List[Tuple[Set[str], Set[str]]] = []

@@ -1,0 +1,11 @@
+# Exemple pour tester la création d'arbre d'attaque
+
+@database
+P(a, b)
+Q(b, c)
+R(c, d)
+
+@query
+P(x; y)
+R(z; y)
+not Q(y; z)
