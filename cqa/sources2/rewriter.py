@@ -35,6 +35,12 @@ def rewrite(data):
     att_graph = _build_attack_graph(data["query"])
     print(att_graph)
 
+    # CYCLE ???
+
+    # Build rewriting
+    rewriting = _build_rewriting(data["query"], att_graph)
+    print(rewriting)
+
 
 # ==============================================================================
 # --------------------------------------------------------------- Weakly-guarded
@@ -120,3 +126,76 @@ def _build_attack_graph(atoms):
                         break  # un seul arc suffit
 
     return graph
+
+# ==============================================================================
+# ---------------------------------------------------------------- build rewrite
+def _build_rewriting(query, attack_graph):
+    """
+    Construit la réécriture logique de la requête en respectant le théorème 8 :
+    - Si tous les atomes positifs sont 'all-key', on les garde tels quels.
+    - Sinon, on sélectionne un pivot non all-key non attaqué et on structure :
+        pivot ∧ not_exists_dup ∧ not_exists(...)
+    """
+
+    # ─── Étape 1 : Chercher un atome pivot (positif, non all-key, non attaqué)
+    pivot_idx = None
+    for idx, (neg, _, pk_len, args) in enumerate(query):
+        if neg:
+            continue
+        if pk_len != len(args):  # donc pas all-key
+            is_attacked = any(idx in attacked for attacked in attack_graph.values())
+            if not is_attacked:
+                pivot_idx = idx
+                break
+
+    # ─── Cas simple : tous les positifs sont all-key → pas besoin de réécriture
+    if pivot_idx is None:
+        return {
+            'op': 'and',
+            'children': [_atom_node(atom) for atom in query]
+        }
+
+    # ─── Étape 2 : Construire l’arbre de réécriture autour du pivot
+    pivot_atom = query[pivot_idx]
+    _, pred, pk_len, args = pivot_atom
+
+    pk_vars = args[:pk_len]
+    nonpk_vars = args[pk_len:]
+
+    pivot_node = _atom_node(pivot_atom)
+
+    # Clause anti-doublon : exclure les autres tuples avec même clé mais valeurs différentes
+    dup_filter_node = {
+        'op': 'not_exists_dup',
+        'pred': pred,
+        'pk_vars': pk_vars,
+        'nvars': nonpk_vars,
+        'pk_len': pk_len
+    }
+
+    # ─── Étape 3 : Transformer chaque atome négatif en not_exists corrélé
+    neg_nodes = []
+    for atom in query:
+        if not atom[0]:
+            continue
+        _, neg_pred, neg_pk_len, neg_args = atom
+        eq_conditions = [
+            (neg_args[i], pk_vars[i]) for i in range(neg_pk_len)
+        ]
+        neg_nodes.append({
+            'op': 'not_exists',
+            'pred': neg_pred,
+            'eq': eq_conditions
+        })
+
+    return {
+        'op': 'and',
+        'children': [pivot_node, dup_filter_node] + neg_nodes
+    }
+def _atom_node(atom):
+    return {
+        'op': 'atom',
+        'pred': atom[1],
+        'args': atom[3]
+    }
+# ------------------------------------------------------------------------------
