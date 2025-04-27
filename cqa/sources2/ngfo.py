@@ -40,16 +40,21 @@ def is_guarded(query):
     q_plus = [a for a in query if not a[0]] # Atome positif
     q_minus = [a for a in query if a[0]] # Atome négatif
 
+    # sjf
+    if not _is_self_join_free(q_plus):
+        return False, "not sjf"
+
     # NGFO
     if _is_ngfo(q_plus, q_minus):
         return True, "NGFO"
 
     # Weakly-guarded
-    if _is_weakly_guarded(q_plus, q_minus):
+    elif _is_weakly_guarded(q_plus, q_minus):
         return True, "WG"
     
     # La requête n'est pas en NGFO, ni weakly-guarded
-    return False, None
+    else:
+        return False, None
 
 # ==============================================================================
 # ------------------------------------------------------------------------- NGFO
@@ -95,3 +100,23 @@ def _is_weakly_guarded(q_plus, q_minus):
             if not pair_guarded:
                 return False
     return True
+
+# ==============================================================================
+# -------------------------------------------------------------------------- SJF
+def _is_self_join_free(q_plus):
+    """
+    Vérifie si la requête est self-join free.
+    Une requête est self-join free si elle ne contient pas de jointures sur 
+    elle-même. (aucun prédicat positif n'apparait plus d'une fois).
+
+    :param q_plus: Liste des atomes positifs.
+    :return: True si la requête est self-join free, False sinon.
+    """
+    seen = set()
+    for atom in q_plus:
+        pred = atom[1]
+        if pred in seen:
+            return False
+        seen.add(pred)
+    return True
+# ==============================================================================

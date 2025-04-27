@@ -227,7 +227,30 @@ class TestNGFO(unittest.TestCase):
         result = is_guarded(query)
         self.assertEqual(result, (False, None))
 
-
+    # ---------------------------------------------------------------------- Sjf
+    def test_sjf(self):
+        """
+        Teste une requête qui n'est pas self-join free.
+        """
+        query = [
+            (False, 'Likes', 2, ('p', 't')),
+            (False, 'Likes', 2, ('p', 't'))
+        ]
+        result = is_guarded(query)
+        self.assertEqual(result, (False, "not sjf"))
+        
+    def test_sfj2(self):
+        """
+        Teste une requête qui n'est pas self-join free.
+        """
+        query = [
+            (False, 'Likes', 2, ('p', 't')),
+            (False, 'Likes', 2, ('p', 't')),
+            (True, 'Lives', 1, ('p', 't')),
+            (False, 'Likes', 2, ('p', 't')),
+        ]
+        result = is_guarded(query)
+        self.assertEqual(result, (False, "not sjf"))
 
 
 

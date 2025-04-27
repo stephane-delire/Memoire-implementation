@@ -1,0 +1,13 @@
+# Test de fichier qui devrait fonctionner
+# pour toute les couvertures
+
+@database
+Parent(John, Mary;)
+Parent(Mary, Alice;)
+Teacher(Mary;)
+Student(Alice;)
+
+@query
+Parent(x,y;)
+Teacher(x;)
+not Student(y;)

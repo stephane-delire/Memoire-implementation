@@ -1,11 +1,10 @@
 # Exemple pour tester la création d'arbre d'attaque
+# Tiré de l'exemple 6.4
 
 @database
-P(a, b)
-Q(b, c)
-R(c, d)
+R(x; y, z)
+N(x;)
 
 @query
-P(x; y)
-R(z; y)
-not Q(y; z)
+R(x; y, z)
+not N(y;)
