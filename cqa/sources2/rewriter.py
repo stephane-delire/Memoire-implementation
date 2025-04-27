@@ -31,15 +31,15 @@ def rewrite(data):
     print("La requête est weakly-guarded")
     # La requête est weakly-guarded
 
-    # attack graph
-    att_graph = _build_attack_graph(data["query"])
-    print(att_graph)
+    # # attack graph
+    # att_graph = _build_attack_graph(data["query"])
+    # print(att_graph)
 
-    # CYCLE ???
+    # # CYCLE ???
 
-    # Build rewriting
-    rewriting = _build_rewriting(data["query"], att_graph)
-    print(rewriting)
+    # # Build rewriting
+    # rewriting = _build_rewriting(data["query"], att_graph)
+    # print(rewriting)
 
 
 # ==============================================================================
@@ -49,14 +49,13 @@ def _is_weakly_guarded(query):
     Une négation «dangereuse» peut comparer librement deux variables qui ne 
     co-existent jamais dans un même atome positif; cela permet de «relier» des 
     composantes normalement indépendantes et rend le problème plus dur.
-
-        Définition (Def.3): pour chaque atome négatif N et pour chaque paire 
-        de variables(x,y) dans N, il existe un atome positif P qui contient x 
-        et y.
     
     Lives(p,t)        ← positif
     not Born(p,t)     ← négatif : variables (p,t) déjà présentes ensemble dans Lives  ✔ WG
     not Likes(t,p)    ← (t,p) apparaissent aussi dans Lives                           ✔ WG
+
+
+    !!! Plus utilisé ! Voir le fichier NGFO
 
     """
     # Séparer atomes positifs et négatifs
