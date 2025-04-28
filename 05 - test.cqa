@@ -1,5 +1,5 @@
 # Test de fichier qui devrait fonctionner
-# pour toute les couvertures
+# pour toute les couvertures (WK + acyclique)
 
 @database
 Parent(John, Mary;)
