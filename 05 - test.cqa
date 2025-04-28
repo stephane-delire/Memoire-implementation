@@ -5,7 +5,7 @@
 Parent(John, Mary;)
 Parent(Mary, Alice;)
 Teacher(Mary;)
-Student(Alice;)
+Student(Bob;)
 
 @query
 Parent(x,y;)
