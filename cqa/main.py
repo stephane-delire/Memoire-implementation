@@ -1,4 +1,4 @@
-from sources.certainty import certainty
+from sources2.certainty import certainty
 
 # with open("../good_one.cqa", "r") as f:
 with open("../03-false-certainty.cqa", "r") as f:

@@ -22,7 +22,7 @@ Si F et G sont 2 atomes de la requête, F attaque G si :
 -------------------------------------------------------------------------------
 """
 
-from graphviz import Digraph
+
 
 # =============================================================================
 # ----------------------------------------------------------------- Build graph
@@ -131,6 +131,10 @@ def draw_attack_graph(graph, filename="attack_graph"):
     Génère une image du graphe d'attaque avec Graphviz.
     A voir si réllement utile...
     """
+    # Safe import, c'est vérifié dans "certainty" si
+    # graphviz est installé
+    from graphviz import Digraph
+    
     dot = Digraph()
     dot.attr(rankdir='LR')  # Graphe horizontal, plus lisible
 
