@@ -112,9 +112,9 @@ def select_unattacked_non_all_key_atom(query):
             return atom
 
     # secours : prend simplement le premier non-all-key
-    for atom in query:
-        if not is_all_key_atom(atom):
-            return atom
+    # for atom in query:
+    #     if not is_all_key_atom(atom):
+    #         return atom
     return None   # devrait jamais arriver si la requête n’est pas vide
 
 
