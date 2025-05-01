@@ -10,7 +10,7 @@ alors il renvoie True...
 
 --------------------------------------------------------------------------------
 """
-
+from .attack_graph import build_attack_graph
 
 ###############################################################################
 #  Helpers génériques
@@ -165,7 +165,7 @@ def fresh_relation():
 
 
 ###############################################################################
-#  ALGORITHME PRINCIPAL  :  is_certain
+#  ALGORITHME PRINCIPAL  :  is_certain_core
 ###############################################################################
 
 def is_certain_core(query, database_or_dict):
@@ -199,7 +199,7 @@ def is_certain_core(query, database_or_dict):
     if pk_F > 0:
         for theta in key_valuations(F, db):
             q_theta = apply_valuation(query, theta)
-            if is_certain(q_theta, db):           # EXISTENTIEL
+            if is_certain_core(q_theta, db):           # EXISTENTIEL
                 return True
         return False
 
@@ -224,7 +224,7 @@ def is_certain_core(query, database_or_dict):
     # ------------------------------------------------------------------ F négatif
     if neg_F:
         # (i) IsCertain(q', db)
-        if not is_certain(q_prime, db):
+        if not is_certain_core(q_prime, db):
             return False
 
         # (ii) ∀ b̄ : IsCertain(q' ∪ {¬E(b̄)}, db ∪ {E(b̄)})
@@ -235,7 +235,7 @@ def is_certain_core(query, database_or_dict):
             neg_E = (True,  fresh, pk_len_E, b_bar)
             new_db = dict(db)              # shallow copy
             new_db.setdefault(fresh, []).append(b_bar)
-            if not is_certain(q_prime + [neg_E], new_db):
+            if not is_certain_core(q_prime + [neg_E], new_db):
                 return False
         return True
 
@@ -251,7 +251,7 @@ def is_certain_core(query, database_or_dict):
                 for v, pos in zip(y_vars, var_pos):
                     theta[v] = fact2[pos]
                 q_theta = apply_valuation(q_prime, theta)
-                if not is_certain(q_theta, db):
+                if not is_certain_core(q_theta, db):
                     ok_candidate = False
                     break
             if ok_candidate:

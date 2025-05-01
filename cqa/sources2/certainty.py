@@ -38,6 +38,7 @@ def certainty(text, graph_png=False):
     data = parse(text)
     # =========================================================================
     # -------------------------------------------------------------------- NGFO
+
     guarded = is_guarded(data["query"])
     
     # Si la requête n'est pas gardée, on ne continue pas
@@ -48,7 +49,7 @@ def certainty(text, graph_png=False):
     graph = {}
     base_graph = build_attack_graph(data["query"])
     graph["base"] = base_graph
-    
+
     # -------------------------------------------------- graphe Cycle
     cycle = detect_cycle(graph)
     graph["cycle"] = cycle
@@ -74,6 +75,7 @@ def certainty(text, graph_png=False):
     
     # Si le graphe d'attaque est cyclique, on ne continue pas
     if cycle:
+        print("Cycle detected, cannot continue "*10)
         return data, guarded, graph, cycle, certain
 
     # =========================================================================
