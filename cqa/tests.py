@@ -5,10 +5,10 @@ Fichier de test unitaire pour le projet d'implémentation du mémoire.
 """
 
 import unittest
-from sources2.parseur import parse
-from sources2.ngfo import is_guarded
-from sources2.attack_graph import build_attack_graph, detect_cycle
-from sources2.certainty import certainty
+from sources.parseur import parse
+from sources.ngfo import is_guarded
+from sources.attack_graph import build_attack_graph, detect_cycle
+from sources.certainty import certainty
 
 # =============================================================================
 # --------------------------------------------------------------------- Parseur
