@@ -14,6 +14,7 @@ Implémentation du mémoire
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="src/css/toolbar.css">
     <link rel="stylesheet" href="src/css/editor.css">
+    <link rel="stylesheet" href="src/css/result.css">
 
     <title>
     </title>
@@ -81,6 +82,47 @@ Implémentation du mémoire
                 <div class="panel_title">
                     Résultat
                 </div>
+                <!-- no result -->
+                 <div id="no_result" class="no_result" style="display: none;">
+                    <div class="no_result_img">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-slash-icon lucide-circle-slash"><circle cx="12" cy="12" r="10"/><line x1="9" x2="15" y1="15" y2="9"/></svg>
+                    </div>
+                    <div class="no_result_text">
+                        Aucun résultat
+                    </div>
+                 </div>
+                 <!-- -- -->
+                <!-- results from cqa -->
+                <div id="result_container">
+                    <table id="result_table" class="result_table">
+                        <thead>
+                            <tr>
+                                <th>N. Gardée</th>
+                                <th>Graphe</th>
+                                <th>Cycle</th>
+                                <th>Certain</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result_body">
+                            <!-- results -->
+                            <tr>
+                                <td id="result_gardee">False</td>
+                                <td id="result_graphe"></td>
+                                <td id="result_cycle"></td>
+                                <td id="result_certain"></td>
+                            </tr>
+                            <!-- -- -->
+                             <tr>
+                                <td id="result_gardee_2">Not SJF</td>
+                                <td id="result_graphe_2">
+                                    <img id="result_graphe_png" style="max-width: 300px;" src="">
+                                </td>
+                                <td id="result_cycle_2"></td>
+                                <td id="result_certain_2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -96,6 +138,7 @@ Implémentation du mémoire
 
 <!-- JS -->
 <script src="src/js/example_shortcut.js"></script>
+<script src="src/js/editor_action.js"></script>
 
 
 

@@ -70,7 +70,7 @@ def unify_tuple(template, fact, bindings):
 
 
 ###############################################################################
-#  Évaluation d’une requête *entièrement all-key*  (lignes 1–2 de l’algo)
+#  Évaluation d’une requête entièrement all-key  (lignes 1–2 de l’algo)
 ###############################################################################
 
 def db_satisfies(query, db):
@@ -97,7 +97,7 @@ def db_satisfies(query, db):
 
 
 ###############################################################################
-#  Sélection d’un atome non-all-key *et unattacked*
+#  Sélection d’un atome non-all-key et unattacked
 ###############################################################################
 
 def select_unattacked_non_all_key_atom(query):
