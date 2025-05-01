@@ -37,4 +37,9 @@ result = is_certain_core(data["query"], data["database"])
 # print(f"IsCertain: {result}")
 
 from sources2.certainty import certainty
-certainty(text)
+data, guarded, graph, cycle, certain = certainty(text)
+print(f"Data: {data}")
+print(f"Guarded: {guarded}")
+print(f"Graph: {graph}")
+print(f"Cycle: {cycle}")
+print(f"Certain: {certain}")

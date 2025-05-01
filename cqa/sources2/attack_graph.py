@@ -122,6 +122,7 @@ def print_attack_graph(graph):
         for tgt in targets:
             tgt_name = f"{tgt[1]}({', '.join(tgt[3])})"
             s += f"  {src_name}  --->  {tgt_name}\n"
+    return s.strip()  # Enlève le dernier \n
 
 # =============================================================================
 # -------------------------------------------------------------------- Graphviz
@@ -145,6 +146,9 @@ def draw_attack_graph(graph, filename="attack_graph"):
             tgt_name = f"{tgt[1]}({', '.join(tgt[3])})"
             dot.edge(src_name, tgt_name)
 
+    # a utiliser pour générer un fichier
     # dot.render(filename, format='png', cleanup=True)
+    
+    # Renvoie l'image au format PNG
     img_bytes = dot.pipe(format='png')  # Renvoie un bytes object
     return img_bytes
