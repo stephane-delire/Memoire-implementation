@@ -1,0 +1,112 @@
+#res_panel {
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+#container_res {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+#res_null {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+}
+
+
+/* content */
+.res_content {
+    width: 75%;
+    outline-color: #999;
+    outline-width: 1px;
+    outline-style: solid;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.res_query {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto-mono';
+    padding: 0 10px;
+}
+.res_top_bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+.res_close {
+    cursor: pointer;
+    color: #999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.res_close:hover {
+    color: #666;
+}
+.res_badge {
+    padding: 2px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: 1px solid #666;
+    border-radius: 5px;
+}
+.badge_select {
+    background-color: #ffefc6;
+}
+.badge_drop, .badge_delete {
+    background-color: #ffd7d7;
+}
+.badge_insert, .badge_update {
+    background-color: #d7ffdc;
+}
+
+.res_isFO, .res_certainty {
+    color: #666;
+    font-size: 14px;
+    margin-left: 5px;
+    text-align: center;
+}
+
+.res_repair {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    row-gap: 10px;
+    column-gap: 10px;
+    flex-wrap: wrap;
+}
+.res_repair_title {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.res_table_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
+.res_table {
+    border-collapse: collapse;
+    margin-bottom: 5px;
+}
+.res_table th {
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+.res_table td {
+    border: 1px solid #ddd;
+    padding: 0 5px;
+}

@@ -1,0 +1,42 @@
+#container_table {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    row-gap: 10px;
+    column-gap: 10px;
+}
+
+#container_table table {
+    border-collapse: collapse;
+}
+#container_table table th {
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+}
+#container_table table td {
+    border: 1px solid #ddd;
+    padding: 0 5px;
+}
+
+.table_name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-decoration: underline;
+}
+
+/* primary key */
+.pk {
+    text-decoration: underline;
+}
+.pk.error {
+    color: red;
+}
+.errorIndex {
+    font-size: 10px;
+    height: 14px;
+    vertical-align: middle;
+    display: inline-block;
+}
