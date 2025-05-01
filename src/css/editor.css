@@ -1,0 +1,71 @@
+#editor_container {
+    min-height: 75px;
+    display: grid;
+    grid-template-columns: 15% 70% 15%;
+    grid-template-rows: 1fr;
+}
+
+#editor_input_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#editor_input {
+    resize: none;
+    width: 75%;
+    min-height: 300px;
+    outline: none;
+}
+
+/* exemples */
+#editor_exemples {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-left: 20px;
+}
+#editor_exemples .exemple_btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+#editor_exemples .exemple_btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* btn */
+#editor_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    row-gap: 25px;
+    padding-right: 20px;
+}
+.btn_editor {
+    background-color: #f0f0f0;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+.btn_editor:hover {
+    background-color: #e0e0e0;
+}
+#btn_execute:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+#btn_reset:hover {
+    background-color: #f44336;
+    color: white;
+}
