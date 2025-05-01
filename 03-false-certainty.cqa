@@ -1,0 +1,10 @@
+@database
+Parent(John, Mary;)
+Parent(Mary, Alice;)
+Teacher(Mary;)
+Student(Alice;)
+
+@query
+Parent(x, y;)
+Teacher(x;)
+not Student(y;)

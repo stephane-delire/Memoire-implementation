@@ -1,0 +1,9 @@
+@database
+Friend(John, Mary;)
+Friend(Mary, Bob;)
+Enemy(Bob, John;)
+
+@query
+Friend(x, y;)
+Friend(y, z;)
+Enemy(z, x;)

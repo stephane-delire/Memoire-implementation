@@ -1,8 +1,0 @@
-# Exemple de requete pas weakly guarded
-@database
-P(a; b)
-Q(b; c)
-
-@query
-P(x; y)
-not Q(y; z) # Z n'est pas un argument de P !

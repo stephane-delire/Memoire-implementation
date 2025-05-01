@@ -227,6 +227,7 @@ class TestNGFO(unittest.TestCase):
         result = is_guarded(query)
         self.assertEqual(result, (False, None))
 
+    # ==========================================================================
     # ---------------------------------------------------------------------- Sjf
     def test_sjf(self):
         """

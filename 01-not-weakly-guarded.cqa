@@ -1,0 +1,9 @@
+@database
+Likes(John, Paris;)
+Dislikes(John, London;)
+Hates(John, Berlin;)
+
+@query
+Likes(p, t;)
+not Dislikes(p, t)
+not Hates(t, p)

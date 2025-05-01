@@ -6,10 +6,12 @@ Implémentation de l'algorithme "IsCertain" présent a la page 216.
 Il prend en entrée une requête et une base de données. 
 
 Si la requête est weakly-guarded, et son graphe d'attaque acyclique,
-alors il renvoie True.
+alors il renvoie True...
 
 --------------------------------------------------------------------------------
 """
+
+
 ###############################################################################
 #  Helpers génériques
 ###############################################################################
@@ -166,7 +168,7 @@ def fresh_relation():
 #  ALGORITHME PRINCIPAL  :  is_certain
 ###############################################################################
 
-def is_certain(query, database_or_dict):
+def is_certain_core(query, database_or_dict):
     """
     query      : [(neg, pred, pk_len, args), …]   – exactement ton format
     database   : soit la liste parsée par @database, soit déjà un dict {pred: […]}
