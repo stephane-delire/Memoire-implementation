@@ -1,5 +1,5 @@
 """
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Attack_graph.py
 
 Methodes pour construire un graphe d'attaque à partir d'une requête, et pour
@@ -19,13 +19,13 @@ Si F et G sont 2 atomes de la requête, F attaque G si :
     utilisant les dépendances dans q
 
 
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 """
 
 from graphviz import Digraph
 
-# ==============================================================================
-# ------------------------------------------------------------------ Build graph
+# =============================================================================
+# ----------------------------------------------------------------- Build graph
 def build_attack_graph(query):
     """
     Construit le graphe d'attaque en respectant la définition stricte de l'article :
@@ -59,7 +59,7 @@ def build_attack_graph(query):
                     changed = True
         return closure_set
 
-    # Construction rigoureuse du graphe d'attaque
+    # Construction du graphe d'attaque
     for f in atoms:
         f_neg, f_pred, f_pk_len, f_args = f
         graph[f] = []
@@ -74,20 +74,20 @@ def build_attack_graph(query):
             g_neg, g_pred, g_pk_len, g_args = g
             g_pk_vars = set(g_args[:g_pk_len])
 
-            # Ultra rigoureux : vérifier que la clé primaire entière de G est atteinte
+            # vérifie que la clé primaire entière de G est atteinte
             if not g_pk_vars:
-                continue  # Pas de clé primaire ? Impossible d'attaquer
+                continue  # Pas de clé primaire, Impossible d'attaquer
             if g_pk_vars.issubset(f_closure):
                 graph[f].append(g)
 
     return graph
 
-# ==============================================================================
-# ------------------------------------------------------------------ Cycle check
+# =============================================================================
+# ----------------------------------------------------------------- Cycle check
 def detect_cycle(graph):
     """
     Détecte s'il existe un cycle dans le graphe d'attaque.
-    Algorithme classique basé sur DFS (Depth First Search).
+    Algorithme basé sur DFS (Depth First Search).
     """
     visited = set()
     stack = set()
@@ -110,21 +110,21 @@ def detect_cycle(graph):
             return True
     return False
 
-# ==============================================================================
-# --------------------------------------------------------------------- Printing
+# =============================================================================
+# -------------------------------------------------------------------- Printing
 def print_attack_graph(graph):
     """
     Affiche lisiblement le graphe d'attaque.
     """
-    print("Attack Graph:")
+    s = ""
     for src, targets in graph.items():
         src_name = f"{src[1]}({', '.join(src[3])})"
         for tgt in targets:
             tgt_name = f"{tgt[1]}({', '.join(tgt[3])})"
-            print(f"  {src_name}  --->  {tgt_name}")
+            s += f"  {src_name}  --->  {tgt_name}\n"
 
-# ==============================================================================
-# --------------------------------------------------------------------- Graphviz
+# =============================================================================
+# -------------------------------------------------------------------- Graphviz
 def draw_attack_graph(graph, filename="attack_graph"):
     """
     Génère une image du graphe d'attaque avec Graphviz.
@@ -145,4 +145,6 @@ def draw_attack_graph(graph, filename="attack_graph"):
             tgt_name = f"{tgt[1]}({', '.join(tgt[3])})"
             dot.edge(src_name, tgt_name)
 
-    dot.render(filename, format='png', cleanup=True)
+    # dot.render(filename, format='png', cleanup=True)
+    img_bytes = dot.pipe(format='png')  # Renvoie un bytes object
+    return img_bytes
