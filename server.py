@@ -55,8 +55,8 @@ def cqa():
     res = {
         'data': data,
         'guarded': guarded,
-        'graph_txt': graph['txt'] if 'txt' in graph else None,
-        'graph_png': graph['png'] if 'png' in graph else None,
+        'graph_txt': graph.get('txt') if graph else None,
+        'graph_png': graph.get('png') if graph else None,
         'cycle': cycle,
         'certain': certain
     }

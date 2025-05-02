@@ -51,7 +51,7 @@ def certainty(text, graph_png=False):
     graph["base"] = base_graph
 
     # -------------------------------------------------- graphe Cycle
-    cycle = detect_cycle(graph)
+    cycle = detect_cycle(base_graph)
     graph["cycle"] = cycle
     
     # ---------------------------------------------------- graphe txt
@@ -75,7 +75,6 @@ def certainty(text, graph_png=False):
     
     # Si le graphe d'attaque est cyclique, on ne continue pas
     if cycle:
-        print("Cycle detected, cannot continue "*10)
         return data, guarded, graph, cycle, certain
 
     # =========================================================================
