@@ -8,6 +8,7 @@ from flask import Flask, request, send_file
 import waitress
 import os
 import json
+from datetime import datetime
 
 from cqa.sources.certainty import certainty
 
@@ -49,6 +50,17 @@ def cqa():
         return 'Invalid query format', 400
     if len(text) == 0:
         return 'Empty query', 400
+    
+    # Sauvegarde du texte dans un fichier
+    with open('queries.txt', 'a') as f:
+        line = "-" * 79 + "\n"
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        f.write(line)
+        f.write(f"IP: {ip}\n")
+        f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(text + "\n")
+        f.write(line)
+        f.write("\n")
     
     data, guarded, graph, cycle, certain = certainty(text, graph_png=True)
 
