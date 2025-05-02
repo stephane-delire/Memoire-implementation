@@ -112,6 +112,7 @@ def select_unattacked_non_all_key_atom(query):
             return atom
 
     # secours : prend simplement le premier non-all-key
+    # probleme, provoque une max recursion depth....
     # for atom in query:
     #     if not is_all_key_atom(atom):
     #         return atom
@@ -177,7 +178,12 @@ def is_certain_core(query, database_or_dict):
 
     db = (database_or_dict if isinstance(database_or_dict, dict)
           else build_db_dict(database_or_dict))
-
+    # (0-bis) La base est déja conforme à toutes les clés
+    # ceci peut empecher l'erreur de "max recursion depth" plus loin
+    if all(len({fact[:pk_len] for fact in db.get(pred, [])}) == len(db.get(pred, []))
+        for pred, pk_len in {(a[1], a[2]) for a in query}):
+        return db_satisfies(query, db)
+    
     # 0) Requête vide
     if not query:
         return True

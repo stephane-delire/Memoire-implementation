@@ -43,6 +43,8 @@ def certainty(text, graph_png=False):
     
     # Si la requête n'est pas gardée, on ne continue pas
     if not guarded[0]:
+        if guarded[1] == "not sjf":
+            return data, guarded, graph, cycle, None
         return data, guarded, graph, cycle, certain
     # =========================================================================
     # ------------------------------------------------------------ Attack graph
@@ -73,9 +75,15 @@ def certainty(text, graph_png=False):
         img = draw_attack_graph(base_graph)
         graph["png"] = base64.b64encode(img).decode('utf-8')
     
+
+
     # Si le graphe d'attaque est cyclique, on ne continue pas
-    if cycle:
-        return data, guarded, graph, cycle, certain
+    # UPT, un cycle n'interdit pas de continuer, mais l'évaluation
+    # est plus complexe... A la base c'était pour éviter les
+    # boucles infinies, mais.. les résultats sont faux!
+    
+    # if cycle:
+    #     return data, guarded, graph, cycle, certain
 
     # =========================================================================
     # --------------------------------------------------------------- certainty

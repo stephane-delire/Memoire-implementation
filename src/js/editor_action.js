@@ -48,6 +48,7 @@ EditorExecuteBtn.addEventListener("click", function () {
         })
         .then(data => {
             // Display the result
+            resultContainer.innerHTML = "";
             resultContainer.style.display = "";
             noResult.style.display = "none";
 
@@ -79,8 +80,8 @@ EditorExecuteBtn.addEventListener("click", function () {
             guardedDiv.appendChild(content2);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
-            guardedDiv.appendChild(hr);
             resultContainer.appendChild(guardedDiv);
+            resultContainer.appendChild(hr);
 
             // Graphe txt
             const grapheDiv = document.createElement("div");
@@ -92,12 +93,16 @@ EditorExecuteBtn.addEventListener("click", function () {
             grapheDiv.appendChild(titleGraphe);
             const contentGraphe = document.createElement("span");
             contentGraphe.classList.add("res_content");
-            contentGraphe.innerHTML = data.graph_txt.replace(/\n/g, '<br>');
+            if (data.graph_txt) {
+                contentGraphe.innerHTML = data.graph_txt.replace(/\n/g, '<br>');
+            } else {
+                contentGraphe.innerHTML = emptySvg;
+            }
             grapheDiv.appendChild(contentGraphe);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
-            grapheDiv.appendChild(hr);
             resultContainer.appendChild(grapheDiv);
+            resultContainer.appendChild(hr);
 
             // Graphe png
             const graphePngDiv = document.createElement("div");
@@ -109,15 +114,19 @@ EditorExecuteBtn.addEventListener("click", function () {
             graphePngDiv.appendChild(titleGraphePng);
             const contentGraphePng = document.createElement("img");
             contentGraphePng.classList.add("res_content");
-            contentGraphePng.src = "data:image/png;base64," + data.graph_png;
-            contentGraphePng.style.width = "100%";
-            contentGraphePng.style.height = "100%";
-            contentGraphePng.style.objectFit = "contain";
+            if (data.graph_png) {
+                contentGraphePng.src = "data:image/png;base64," + data.graph_png;
+                contentGraphePng.alt = "Graphe png";
+            } else {
+                // if no graphe png, display the empty svg
+                contentGraphePng.src = "data:image/svg+xml;base64," + btoa(emptySvg);
+                contentGraphePng.alt = "Graphe png";
+            }
             graphePngDiv.appendChild(contentGraphePng);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
-            graphePngDiv.appendChild(hr);
             resultContainer.appendChild(graphePngDiv);
+            resultContainer.appendChild(hr);
 
             //cycle
             const cycleDiv = document.createElement("div");
@@ -129,17 +138,22 @@ EditorExecuteBtn.addEventListener("click", function () {
             cycleDiv.appendChild(titleCycle);
             const contentCycle = document.createElement("span");
             contentCycle.classList.add("res_content");
-            contentCycle.innerHTML = data.cycle;
-            if (data.cycle == true) {
-                contentCycle.classList.add("res_content_true");
-            } else {
-                contentCycle.classList.add("res_content_false");
+            if (data.cycle || data.cycle == false) {
+                contentCycle.innerHTML = data.cycle;
+                if (data.cycle == true) {
+                    contentCycle.classList.add("res_content_false");
+                } else {
+                    contentCycle.classList.add("res_content_true");
+                }
+            }
+            else {
+                contentCycle.innerHTML = emptySvg;
             }
             cycleDiv.appendChild(contentCycle);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
-            cycleDiv.appendChild(hr);
             resultContainer.appendChild(cycleDiv);
+            resultContainer.appendChild(hr);
 
             //certain
             const certainDiv = document.createElement("div");
@@ -147,23 +161,25 @@ EditorExecuteBtn.addEventListener("click", function () {
             certainDiv.setAttribute("id", "result_certain");
             const titleCertain = document.createElement("span");
             titleCertain.classList.add("res_title");
-            titleCertain.innerHTML = "Certain";
+            titleCertain.innerHTML = "Certitude";
             certainDiv.appendChild(titleCertain);
             const contentCertain = document.createElement("span");
             contentCertain.classList.add("res_content");
-            contentCertain.innerHTML = data.certain;
-            if (data.certain == true) {
-                contentCertain.classList.add("res_content_true");
+            if (data.certain || data.certain == false) {
+                contentCertain.innerHTML = data.certain;
+                if (data.certain == true) {
+                    contentCertain.classList.add("res_content_true");
+                } else {
+                    contentCertain.classList.add("res_content_false");
+                }
             } else {
-                contentCertain.classList.add("res_content_false");
+                contentCertain.innerHTML = "Pas évalué";
             }
             certainDiv.appendChild(contentCertain);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
-            certainDiv.appendChild(hr);
             resultContainer.appendChild(certainDiv);
-
-
+            resultContainer.appendChild(hr);
 
 
         });

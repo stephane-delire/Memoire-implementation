@@ -75,18 +75,17 @@ not S(x, y, z)`;
 });
 
 btnShrt5.addEventListener("click", function () {
-    Editor.value = `# A priori correct
+    Editor.value = `# Conflit
 
 @database
-Parent(John, Mary;)
-Parent(Mary, Alice;)
-Teacher(Mary;)
-Student(Bob;)
+Lives(John; London)
+Lives(John; Paris) # duplicata sur la clé p
+Visited(John, Paris;)
 
 @query
-Parent(x, y;)
-Teacher(x;)
-not Student(y;)`;
+Lives(p; t)
+Visited(p, t;)
+not Banned(t;)`;
 });
 
 btnShrt6.addEventListener("click", function () {

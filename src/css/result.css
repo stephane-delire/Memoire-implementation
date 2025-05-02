@@ -14,7 +14,26 @@
     flex-direction: column;
 }
 
+.res_panel {
+    padding: 10px;
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.res_hr {
+    width: 90%;
+}
 
+.res_content_true {
+    color: green;
+}
+.res_content_false {
+    color: red;
+}
+.res_title {
+    font-size: 18px;
+}
 
 
 /* animation on editor empty */

@@ -372,7 +372,7 @@ class TestCertainty(unittest.TestCase):
         data, guarded, graph, cycle, certain = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "NGFO")
-        self.assertEqual(cycle, False)
+        self.assertEqual(cycle, True)
         self.assertEqual(certain, True)
 
     def test_not_sjf(self):
@@ -395,7 +395,7 @@ class TestCertainty(unittest.TestCase):
         self.assertEqual(guarded[1], "not sjf")
         self.assertEqual(graph, None)
         self.assertEqual(cycle, None)
-        self.assertEqual(certain, False)
+        self.assertEqual(certain, None)
 
     def test_neg_not_certain(self):
         """
@@ -487,7 +487,7 @@ class TestCertainty(unittest.TestCase):
         data, guarded, graph, cycle, certain = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "WG")
-        self.assertEqual(cycle, False)
+        self.assertEqual(cycle, True)
         self.assertEqual(certain, False)
 
 if __name__ == "__main__":
