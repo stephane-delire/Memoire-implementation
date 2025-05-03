@@ -181,6 +181,27 @@ EditorExecuteBtn.addEventListener("click", function () {
             resultContainer.appendChild(certainDiv);
             resultContainer.appendChild(hr);
 
+            // rewrited
+            const rewritedDiv = document.createElement("div");
+            rewritedDiv.classList.add("res_panel");
+            rewritedDiv.setAttribute("id", "result_rewrited");
+            const titleRewrited = document.createElement("span");
+            titleRewrited.classList.add("res_title");
+            titleRewrited.innerHTML = "Reécriture";
+            rewritedDiv.appendChild(titleRewrited);
+            const contentRewrited = document.createElement("span");
+            contentRewrited.classList.add("res_content");
+            if (data.rewrite) {
+                contentRewrited.innerHTML = data.rewrite.replace(/\n/g, '<br>');
+            } else {
+                contentRewrited.innerHTML = emptySvg;
+            }
+            rewritedDiv.appendChild(contentRewrited);
+            var hr = document.createElement("hr");
+            hr.classList.add("res_hr");
+            resultContainer.appendChild(rewritedDiv);
+            resultContainer.appendChild(hr);
+
 
         });
     }

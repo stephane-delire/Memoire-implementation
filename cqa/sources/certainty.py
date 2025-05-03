@@ -97,7 +97,6 @@ def certainty(text, graph_png=False):
         rewriting = rewrite(data["query"])
     else:
         rewriting = None
-    print("rewritten query: ", rewriting)
 
     # =========================================================================
     # ------------------------------------------------------------------ Return

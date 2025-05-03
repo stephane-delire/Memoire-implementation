@@ -71,7 +71,8 @@ def cqa():
         'graph_txt': graph.get('txt') if graph else None,
         'graph_png': graph.get('png') if graph else None,
         'cycle': cycle,
-        'certain': certain
+        'certain': certain,
+        'rewrite': rewrite,
     }
 
     return json.dumps(res), 200, {'Content-Type': 'application/json'}
