@@ -369,7 +369,7 @@ class TestCertainty(unittest.TestCase):
         not Dislikes(p, t)
         not Hates(t, p)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "NGFO")
         self.assertEqual(cycle, True)
@@ -390,7 +390,7 @@ class TestCertainty(unittest.TestCase):
         Friend(y, z;)
         Enemy(z, x;)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], False)
         self.assertEqual(guarded[1], "not sjf")
         self.assertEqual(graph, None)
@@ -413,7 +413,7 @@ class TestCertainty(unittest.TestCase):
         Teacher(x;)
         not Student(y;)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "NGFO")
         self.assertEqual(cycle, False)
@@ -435,7 +435,7 @@ class TestCertainty(unittest.TestCase):
         Teacher(x;)
         not Student(y;)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "NGFO")
         self.assertEqual(cycle, False)
@@ -457,7 +457,7 @@ class TestCertainty(unittest.TestCase):
         R(z, y;)
         not S(x, y, z)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "WG")
         self.assertEqual(cycle, False)
@@ -484,7 +484,7 @@ class TestCertainty(unittest.TestCase):
         R(z; x)
         not D(x, y, z)
         """
-        data, guarded, graph, cycle, certain = certainty(text)
+        data, guarded, graph, cycle, certain, rewrite = certainty(text)
         self.assertEqual(guarded[0], True)
         self.assertEqual(guarded[1], "WG")
         self.assertEqual(cycle, True)

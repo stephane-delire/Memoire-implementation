@@ -63,7 +63,7 @@ def cqa():
         f.write(line)
         f.write("\n")
     
-    data, guarded, graph, cycle, certain = certainty(text, graph_png=True)
+    data, guarded, graph, cycle, certain, rewrite = certainty(text, graph_png=True)
 
     res = {
         'data': data,

@@ -14,7 +14,6 @@ from .attack_graph import build_attack_graph
 
 ###############################################################################
 #  Helpers génériques
-###############################################################################
 
 def is_variable(t):
     """
@@ -71,7 +70,6 @@ def unify_tuple(template, fact, bindings):
 
 ###############################################################################
 #  Évaluation d’une requête entièrement all-key  (lignes 1–2 de l’algo)
-###############################################################################
 
 def db_satisfies(query, db):
     pos = [a for a in query if not a[0]]
@@ -98,7 +96,6 @@ def db_satisfies(query, db):
 
 ###############################################################################
 #  Sélection d’un atome non-all-key et unattacked
-###############################################################################
 
 def select_unattacked_non_all_key_atom(query):
     g = build_attack_graph(query)
@@ -156,7 +153,6 @@ def apply_valuation(query, theta):
 
 ###############################################################################
 #  Générateur de relations fraîches E1, E2, …
-###############################################################################
 
 _rel_counter = 0
 def fresh_relation():
@@ -167,7 +163,6 @@ def fresh_relation():
 
 ###############################################################################
 #  ALGORITHME PRINCIPAL  :  is_certain_core
-###############################################################################
 
 def is_certain_core(query, database_or_dict):
     """
