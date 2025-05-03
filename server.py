@@ -18,6 +18,7 @@ app = Flask(__name__)
 # ----------------------------------------------------------------------- index
 @app.route('/', methods=['GET'])
 def index():
+    print("Main page accessed")
     with open('src/html/main.html', 'r') as f:
         html = f.read()
     return html
@@ -76,7 +77,7 @@ def cqa():
     return json.dumps(res), 200, {'Content-Type': 'application/json'}
 
 
-
+print("Starting server...")
 waitress.serve(
     app, 
     host='0.0.0.0', 
