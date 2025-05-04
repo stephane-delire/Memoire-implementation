@@ -4,6 +4,8 @@
     <img src="src/img/umons.png" width="200"/>
 </div>
 
+# Todo : Update version 2
+
 # Certainty Algorithm for Consistent Query Answering
 
 ## Description
