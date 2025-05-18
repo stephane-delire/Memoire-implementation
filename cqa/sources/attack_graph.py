@@ -26,61 +26,103 @@ Si F et G sont 2 atomes de la requête, F attaque G si :
 
 # =============================================================================
 # ----------------------------------------------------------------- Build graph
-def build_attack_graph(query):
-    """
-    Construit le graphe d'attaque en respectant la définition stricte de l'article :
-    - Une attaque existe de F vers G si une variable de clé primaire de G
-      est atteignable depuis F via la closure fonctionnelle.
+# def build_attack_graph(query):
+#     """
+#     Construit le graphe d'attaque en respectant la définition stricte de l'article :
+#     - Une attaque existe de F vers G si une variable de clé primaire de G
+#       est atteignable depuis F via la closure fonctionnelle.
     
-    On considère tant les atomes positifs que négatifs (voir Section 4.1 de l'article).
-    """
-    atoms = [(neg, pred, pk_len, args) for (neg, pred, pk_len, args) in query]
-    graph = dict()
+#     On considère tant les atomes positifs que négatifs (voir Section 4.1 de l'article).
+#     """
+#     atoms = [(neg, pred, pk_len, args) for (neg, pred, pk_len, args) in query]
+#     graph = dict()
 
-    # Construction du set des dépendances fonctionnelles
-    # Seuls les atomes positifs fournissent des dépendances fonctionnelles
+#     # Construction du set des dépendances fonctionnelles
+#     # Seuls les atomes positifs fournissent des dépendances fonctionnelles
+#     dependencies = []
+#     for neg, pred, pk_len, args in atoms:
+#         if not neg:  # uniquement les atomes positifs
+#             key = args[:pk_len]
+#             for var in args:
+#                 if var not in key:
+#                     dependencies.append((key, var))
+
+#     # Fonction pour calculer la closure stricte
+#     def closure(vars_init):
+#         closure_set = set(vars_init)
+#         changed = True
+#         while changed:
+#             changed = False
+#             for key_vars, var in dependencies:
+#                 if set(key_vars).issubset(closure_set) and var not in closure_set:
+#                     closure_set.add(var)
+#                     changed = True
+#         return closure_set
+
+#     # Construction du graphe d'attaque
+#     for f in atoms:
+#         f_neg, f_pred, f_pk_len, f_args = f
+#         graph[f] = []
+
+#         f_vars = set(f_args)
+#         f_closure = closure(f_vars)
+
+#         for g in atoms:
+#             if f == g:
+#                 continue  # pas d'attaque sur soi-même
+
+#             g_neg, g_pred, g_pk_len, g_args = g
+#             g_pk_vars = set(g_args[:g_pk_len])
+
+#             # vérifie que la clé primaire entière de G est atteinte
+#             if not g_pk_vars:
+#                 continue  # Pas de clé primaire, Impossible d'attaquer
+#             if g_pk_vars.issubset(f_closure):
+#                 graph[f].append(g)
+
+#     return graph
+
+def build_attack_graph(query):
+    atoms = [(neg, pred, pk_len, args) for (neg, pred, pk_len, args) in query]
+    graph = {f: [] for f in atoms}
+
+    # Dépendances : seulement depuis les positifs
     dependencies = []
     for neg, pred, pk_len, args in atoms:
-        if not neg:  # uniquement les atomes positifs
+        if not neg:                       # atome positif
             key = args[:pk_len]
             for var in args:
                 if var not in key:
-                    dependencies.append((key, var))
+                    dependencies.append((tuple(key), var))
 
-    # Fonction pour calculer la closure stricte
-    def closure(vars_init):
-        closure_set = set(vars_init)
+    def closure(key_vars):
+        X = set(key_vars)                # on part de la clé, pas de tout l'atome
         changed = True
         while changed:
             changed = False
-            for key_vars, var in dependencies:
-                if set(key_vars).issubset(closure_set) and var not in closure_set:
-                    closure_set.add(var)
+            for Y, z in dependencies:
+                if set(Y) <= X and z not in X:
+                    X.add(z)
                     changed = True
-        return closure_set
+        return X
 
-    # Construction du graphe d'attaque
     for f in atoms:
         f_neg, f_pred, f_pk_len, f_args = f
-        graph[f] = []
+        if f_neg:                        # règle 1 : seul un POSITIF peut attaquer
+            continue
 
-        f_vars = set(f_args)
-        f_closure = closure(f_vars)
+        f_key = f_args[:f_pk_len]
+        f_clos = closure(f_key)
 
         for g in atoms:
             if f == g:
-                continue  # pas d'attaque sur soi-même
-
-            g_neg, g_pred, g_pk_len, g_args = g
-            g_pk_vars = set(g_args[:g_pk_len])
-
-            # vérifie que la clé primaire entière de G est atteinte
-            if not g_pk_vars:
-                continue  # Pas de clé primaire, Impossible d'attaquer
-            if g_pk_vars.issubset(f_closure):
+                continue
+            g_pk = set(g[3][:g[2]])
+            if g_pk and g_pk <= f_clos:
                 graph[f].append(g)
 
     return graph
+
 
 # =============================================================================
 # ----------------------------------------------------------------- Cycle check
