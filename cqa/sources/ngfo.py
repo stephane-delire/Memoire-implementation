@@ -95,7 +95,12 @@ def _is_weakly_guarded(q_plus, q_minus):
     args_minus = [set(a[3]) for a in q_minus]
 
     for neg in args_minus:
-        for x, y in combinations(neg, 2):  # Toutes les paires possibles dans le négatif
+        vars_in_neg = [v for v in neg if v.islower()]
+        # Si moins de 2 variables, pas de paires à vérifier... --> WG
+        if len(vars_in_neg) < 2:
+            return True
+
+        for x, y in combinations(vars_in_neg, 2):  # Toutes les paires possibles dans le négatif
             pair_guarded = any({x, y}.issubset(pos) for pos in args_plus)
             if not pair_guarded:
                 return False
