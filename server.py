@@ -63,7 +63,7 @@ def cqa():
         f.write(line)
         f.write("\n")
     
-    data, guarded, graph, cycle, certain, rewrite = certainty(text, graph_png=True)
+    data, guarded, graph, cycle, certain, rewrite, latex = certainty(text, graph_png=True)
 
     res = {
         'data': data,
@@ -73,6 +73,7 @@ def cqa():
         'cycle': cycle,
         'certain': certain,
         'rewrite': rewrite,
+        'latex': latex,
     }
 
     return json.dumps(res), 200, {'Content-Type': 'application/json'}

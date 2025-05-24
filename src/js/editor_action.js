@@ -182,25 +182,53 @@ EditorExecuteBtn.addEventListener("click", function () {
             resultContainer.appendChild(hr);
 
             // rewrited
-            const rewritedDiv = document.createElement("div");
-            rewritedDiv.classList.add("res_panel");
-            rewritedDiv.setAttribute("id", "result_rewrited");
-            const titleRewrited = document.createElement("span");
-            titleRewrited.classList.add("res_title");
-            titleRewrited.innerHTML = "Reécriture";
-            rewritedDiv.appendChild(titleRewrited);
-            const contentRewrited = document.createElement("span");
-            contentRewrited.classList.add("res_content");
-            if (data.rewrite) {
-                contentRewrited.innerHTML = data.rewrite.replace(/\n/g, '<br>');
-            } else {
-                contentRewrited.innerHTML = emptySvg;
+            // const rewritedDiv = document.createElement("div");
+            // rewritedDiv.classList.add("res_panel");
+            // rewritedDiv.setAttribute("id", "result_rewrited");
+            // const titleRewrited = document.createElement("span");
+            // titleRewrited.classList.add("res_title");
+            // titleRewrited.innerHTML = "Reécriture";
+            // rewritedDiv.appendChild(titleRewrited);
+            // const contentRewrited = document.createElement("span");
+            // contentRewrited.classList.add("res_content");
+            // if (data.rewrite) {
+            //     contentRewrited.innerHTML = data.rewrite.replace(/\n/g, '<br>');
+            // } else {
+            //     contentRewrited.innerHTML = emptySvg;
+            // }
+            // rewritedDiv.appendChild(contentRewrited);
+            // var hr = document.createElement("hr");
+            // hr.classList.add("res_hr");
+            // resultContainer.appendChild(rewritedDiv);
+            // resultContainer.appendChild(hr);
+            
+            // latex
+            if (data.latex) {
+                const latexDiv = document.createElement("div");
+                latexDiv.classList.add("res_panel");
+                latexDiv.setAttribute("id", "result_latex");
+                const titleLatex = document.createElement("span");
+                titleLatex.classList.add("res_title");
+                titleLatex.innerHTML = "Réécriture";
+                latexDiv.appendChild(titleLatex);
+                const contentLatex = document.createElement("span");
+                contentLatex.classList.add("res_content");
+                if (data.latex) {
+                    contentLatex.innerHTML = "$" + data.latex.replace(/\n/g, '<br>') + "$";
+                    contentLatex.classList.add("latex_content");
+                }
+                else {
+                    contentLatex.innerHTML = emptySvg;
+                    contentLatex.classList.add("latex_content_empty");
+                }
+                latexDiv.appendChild(contentLatex);
+                var hr = document.createElement("hr");
+                hr.classList.add("res_hr");
+                resultContainer.appendChild(latexDiv);
+                resultContainer.appendChild(hr);
+                MathJax.typeset();
+
             }
-            rewritedDiv.appendChild(contentRewrited);
-            var hr = document.createElement("hr");
-            hr.classList.add("res_hr");
-            resultContainer.appendChild(rewritedDiv);
-            resultContainer.appendChild(hr);
 
 
         });

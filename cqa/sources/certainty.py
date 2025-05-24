@@ -15,7 +15,7 @@ from .ngfo import is_guarded
 from .attack_graph import build_attack_graph, detect_cycle, print_attack_graph
 from .attack_graph import draw_attack_graph
 from .IsCertain import is_certain_core
-from .rewriter import rewrite
+from .rewriter import rewrite, fo_to_latex
 import base64
 
 
@@ -32,7 +32,7 @@ def certainty(text, graph_png=False):
     :param graph_png: Si True, génère une image du graphe d'attaque.
     
     """
-    data, guarded, graph, cycle, certain, rewriting = None, None, None, None, False, None
+    data, guarded, graph, cycle, certain, rewriting, latex = None, None, None, None, False, None, None
     
     # =========================================================================
     # ------------------------------------------------------------------- Parse
@@ -45,8 +45,8 @@ def certainty(text, graph_png=False):
     # Si la requête n'est pas gardée, on ne continue pas
     if not guarded[0]:
         if guarded[1] == "not sjf":
-            return data, guarded, graph, cycle, None, None
-        return data, guarded, graph, cycle, certain, None
+            return data, guarded, graph, cycle, None, None, None
+        return data, guarded, graph, cycle, certain, None, None
     # =========================================================================
     # ------------------------------------------------------------ Attack graph
     graph = {}
@@ -95,9 +95,11 @@ def certainty(text, graph_png=False):
     # Réécriture de la requête, si gardée et acyclique
     if guarded[0] and not cycle:
         rewriting = rewrite(data["query"])
+        # Conversion de la réécriture en LaTeX
+        latex = fo_to_latex(rewriting)
     else:
         rewriting = None
 
     # =========================================================================
     # ------------------------------------------------------------------ Return
-    return data, guarded, graph, cycle, certain, rewriting
+    return data, guarded, graph, cycle, certain, rewriting, latex
