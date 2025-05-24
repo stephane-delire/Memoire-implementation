@@ -77,6 +77,9 @@ EditorExecuteBtn.addEventListener("click", function () {
             } else {
                 content2.classList.add("res_content_false");
             }
+            if (content2.innerHTML == "WG") {
+                content2.innerHTML = "Clique-guarded";
+            }
             guardedDiv.appendChild(content2);
             var hr = document.createElement("hr");
             hr.classList.add("res_hr");
@@ -148,6 +151,11 @@ EditorExecuteBtn.addEventListener("click", function () {
             }
             else {
                 contentCycle.innerHTML = emptySvg;
+            }
+            if (contentCycle.innerHTML == "false") {
+                contentCycle.innerHTML = "Acyclique";
+            } else if (contentCycle.innerHTML == "true") {
+                contentCycle.innerHTML = "Cyclique";
             }
             cycleDiv.appendChild(contentCycle);
             var hr = document.createElement("hr");
