@@ -200,6 +200,8 @@ def is_certain_core(query, database_or_dict):
     if pk_F > 0:
         for theta in key_valuations(F, db):
             q_theta = apply_valuation(query, theta)
+            if q_theta == query:
+                continue # empeche l'erreur de "max recursion depth"
             if is_certain_core(q_theta, db):           # EXISTENTIEL
                 return True
         return False
@@ -245,13 +247,16 @@ def is_certain_core(query, database_or_dict):
         y_vars = [args_F[i] for i in var_pos]
 
         for fact in relevant_facts:        # EXISTENTIEL sur b̄
-            # On teste si ce candidat marche pour *tous* les b̄'
+            # On teste si ce candidat marche pour tous les b̄'
             ok_candidate = True
             for fact2 in relevant_facts:   # UNIVERSALITÉ sur b̄'
                 theta = {}
                 for v, pos in zip(y_vars, var_pos):
                     theta[v] = fact2[pos]
                 q_theta = apply_valuation(q_prime, theta)
+                if q_theta == q_prime:
+                    ok_candidate = False
+                    break
                 if not is_certain_core(q_theta, db):
                     ok_candidate = False
                     break
