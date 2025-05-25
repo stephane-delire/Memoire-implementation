@@ -31,32 +31,36 @@ not Mayor(t;p)`;
 });
 
 btnShrt2.addEventListener("click", function () {
-  Editor.value = `# NGFO, mais pas certaine
+  Editor.value = `# Exemple 4.5 de l'article
+# Mais pas certain
 
 @database
-Parent(John, Mary;)
-Parent(Mary, Alice;)
-Teacher(Mary;)
-Student(Alice;)
+P(1; A)
+P(1; B)
+N(C; A)
 
 @query
-Parent(x, y;)
-Teacher(x;)
-not Student(y;)`;
+P(x; y)
+Not N(C; y)
+
+# Doit etre clique guarded
+# et réécrit`;
 });
 
 btnShrt3.addEventListener("click", function () {
-    Editor.value = `# pas SJF
+    Editor.value = `# Exemple 4.5 de l'article
+# certain
 
 @database
-Friend(John, Mary;)
-Friend(Mary, Bob;)
-Enemy(Bob, John;)
+P(1; A)
+N(C; B)
 
 @query
-Friend(x, y;)
-Friend(y, z;) # SJF...
-Enemy(z, x;)`;
+P(x; y)
+Not N(C; y)
+
+# Doit etre clique guarded
+# et réécrit`;
 });
 
 btnShrt4.addEventListener("click", function () {
