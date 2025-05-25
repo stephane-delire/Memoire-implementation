@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+
+package "certainty.py" {
+  [CertaintyController] as main
+}
+
+package "Modules logiques" {
+  [Parseur] --> main : parse(text)
+  [NGFOChecker] --> main : is_guarded(query)
+  [AttackGraphBuilder] --> main : build_attack_graph(query)
+  [CycleDetector] --> main : detect_cycle(graph)
+  [GraphRenderer] --> main : print / draw
+  [IsCertain] --> main : is_certain_core(query, db)
+  [Rewriter] --> main : rewrite(query) / fo_to_latex()
+}
+
+main --> [Result (data, guarded, graph, cycle, certain, rewriting, latex)]
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+!theme plain
+
+start
+
+:Entrée utilisateur (text);
+
+:parse(text);
+:is_guarded(query);
+
+if ("not sjf" ?) then (oui)
+  :retour anticipé;
+  stop
+elseif ("non gardée" ?) then (oui)
+  :retour anticipé;
+  stop
+endif
+
+:build_attack_graph(query);
+:detect_cycle(graph);
+:print_attack_graph(graph);
+
+if ("graph_png demandé ?") then (oui)
+  :draw_attack_graph(graph);
+endif
+
+:is_certain_core(query, db);
+
+if ("gardée et acyclique ?") then (oui)
+  :rewrite(query);
+  :fo_to_latex();
+endif
+
+:return data, guarded, graph, certain, rewriting, latex;
+
+stop
+@enduml

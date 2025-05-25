@@ -1,0 +1,61 @@
+@startuml
+!theme plain
+autonumber
+
+actor Utilisateur
+participant "certainty()" as Controller
+participant "parse()" as Parseur
+participant "is_guarded()" as NGFOChecker
+participant "build_attack_graph()" as GraphBuilder
+participant "detect_cycle()" as CycleDetector
+participant "print_attack_graph()" as GraphPrinter
+participant "draw_attack_graph()" as GraphRenderer
+participant "is_certain_core()" as CertaintyEngine
+participant "rewrite()" as Rewriter
+participant "fo_to_latex()" as LatexConverter
+
+Utilisateur -> Controller : Appel de certainty(text, graph_png)
+
+Controller -> Parseur : parse(text)
+Parseur --> Controller : data
+
+Controller -> NGFOChecker : is_guarded(data["query"])
+NGFOChecker --> Controller : (status, cause)
+
+alt Requête non gardée
+  Controller --> Utilisateur : Retourne (data, guarded, ...)
+else Requête gardée
+  Controller -> GraphBuilder : build_attack_graph(query)
+  GraphBuilder --> Controller : base_graph
+
+  Controller -> CycleDetector : detect_cycle(base_graph)
+  CycleDetector --> Controller : cycle
+
+  Controller -> GraphPrinter : print_attack_graph(base_graph)
+  GraphPrinter --> Controller : graph_txt
+
+  alt graph_png demandé
+    Controller -> GraphRenderer : draw_attack_graph(base_graph)
+    GraphRenderer --> Controller : image encodée
+  else
+    Controller -> Controller : graph["png"] = None
+  end alt
+
+  Controller -> CertaintyEngine : is_certain_core(query, database)
+  CertaintyEngine --> Controller : certain
+
+  alt Gardée et Acyclique
+    Controller -> Rewriter : rewrite(query)
+    Rewriter --> Controller : rewriting
+
+    Controller -> LatexConverter : fo_to_latex(rewriting)
+    LatexConverter --> Controller : latex
+  else
+    Controller -> Controller : rewriting = None
+  end alt
+
+end alt
+
+Controller --> Utilisateur : Retourne résultats complets
+
+@enduml

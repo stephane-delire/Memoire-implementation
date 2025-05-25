@@ -1,0 +1,49 @@
+@startmindmap
+!theme plain
++ Memoire-implementation
+
+++ cqa
++++ sources
+++++_ attack_graph.py
+++++_ certainty.py
+++++_ IsCertain.py
+++++_ ngfo.py
+++++_ parseur.py
+++++_ rewriter.py
+
++++_ main.py
++++_ tests.py
+
+++ src
+
++++ css
+++++_ editor.css
+++++_ fonts.css
+++++_ main.css
+++++_ result.css
+++++_ toolbar.css
+
++++ fonts
+++++_ Roboto-Regular.ttf
+++++_ RobotoMono-Medium.ttf
+
++++ html
+++++_ main.html
+
++++ img
+++++_ sciences.png
+++++_ umons.png
+
++++ js
+++++_ editor_action.js
+++++_ example_shortcut.js
+++++_ startup.js
+
++++ svg
+++++_ ...
+
+++_ readme.md
+++_ requirements.txt
+++_ server.py
+
+@endmindmap
