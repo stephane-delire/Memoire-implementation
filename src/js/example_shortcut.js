@@ -79,17 +79,19 @@ not S(x, y, z)`;
 });
 
 btnShrt5.addEventListener("click", function () {
-    Editor.value = `# Conflit
+    Editor.value = `# Exemple 4.6
+# Requete q_b
 
 @database
+Likes(John, Paris;)
 Lives(John; London)
-Lives(John; Paris) # duplicata sur la clé p
-Visited(John, Paris;)
+Born(Paris; Hidalgo)
+Born(London; Khan)
 
 @query
-Lives(p; t)
-Visited(p, t;)
-not Banned(t;)`;
+Likes(p,t;)
+not Lives(p;t)
+not Born(p;t)`;
 });
 
 btnShrt6.addEventListener("click", function () {
