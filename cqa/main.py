@@ -11,7 +11,7 @@ Delire Stéphane.
 from sources.certainty import certainty
 
 # with open("examples/good_one.cqa", "r") as f:
-with open("examples/03-false-certainty.cqa", "r") as f:
+with open("examples/base.cqa", "r") as f:
     text = f.read()
 
-data, guarded, graph, cycle, certain, rewrited = certainty(text, graph_png=False)
+data, guarded, graph, cycle, certain, rewrited, latex = certainty(text, graph_png=False)

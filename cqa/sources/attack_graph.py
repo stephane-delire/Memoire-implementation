@@ -2,127 +2,114 @@
 -------------------------------------------------------------------------------
 Attack_graph.py
 
-Methodes pour construire un graphe d'attaque à partir d'une requête, et pour
-vérifier si le graphe est cyclique ou acyclique.
+Refonte de Juillet 2025.
+Au vu des différents tests, il semble que soit la définition dans l'article
+soit erronée, ou alors les exemples sont erronés(mal choisis).
+D'apres les test et expérimentations, il est impossible de construire
+un graphe d'attaque sur la façon dont il est défini et de reproduire les
+exemples de l'article.
+En particulier, la query Qa de la page 213.
 
-Si le graphe est acyclique, on peut construire une réécriture logique de la
-requête en FO, mais si le graphe est cyclique, NP-complet.
+De ce fait, afin de respecter un minimum la définition, et surtout afin de
+correspondre aux plus grand nombre de cas testés, le graphe sera construit
+selon mon mémo : "Les variables attaquent les clés primaires des atomes"
 
-Chaque atome (positif ou negatif) est un noeud.
-L'attaque dépend : 
-    - de la clé primaire de l'atome (sous forme d'ensemble de variables)
-    - des dépendances fonctionnelles entre variables
-
-La clé primaire provoque l'attaque.
-Si F et G sont 2 atomes de la requête, F attaque G si :
-    - une variable de la clé primaire de G dépend d'une variable de F en 
-    utilisant les dépendances dans q
-
+On ne fait pas la distinction entre les atomes positifs et négatifs, tel que
+suggéré à un endroit dans l'article.
 
 -------------------------------------------------------------------------------
 """
 
 
-
-# =============================================================================
-# ----------------------------------------------------------------- Build graph
+#  Version pré juillet 2025, fonctionnelle mais ne correspond pas
 # def build_attack_graph(query):
-#     """
-#     Construit le graphe d'attaque en respectant la définition stricte de l'article :
-#     - Une attaque existe de F vers G si une variable de clé primaire de G
-#       est atteignable depuis F via la closure fonctionnelle.
-    
-#     On considère tant les atomes positifs que négatifs (voir Section 4.1 de l'article).
-#     """
 #     atoms = [(neg, pred, pk_len, args) for (neg, pred, pk_len, args) in query]
-#     graph = dict()
+#     graph = {f: [] for f in atoms}
 
-#     # Construction du set des dépendances fonctionnelles
-#     # Seuls les atomes positifs fournissent des dépendances fonctionnelles
+#     # Dépendances : seulement depuis les positifs
 #     dependencies = []
 #     for neg, pred, pk_len, args in atoms:
-#         if not neg:  # uniquement les atomes positifs
+#         if not neg:                       # atome positif
 #             key = args[:pk_len]
 #             for var in args:
 #                 if var not in key:
-#                     dependencies.append((key, var))
+#                     dependencies.append((tuple(key), var))
 
-#     # Fonction pour calculer la closure stricte
-#     def closure(vars_init):
-#         closure_set = set(vars_init)
+#     def closure(key_vars):
+#         X = set(key_vars)                # on part de la clé, pas de tout l'atome
 #         changed = True
 #         while changed:
 #             changed = False
-#             for key_vars, var in dependencies:
-#                 if set(key_vars).issubset(closure_set) and var not in closure_set:
-#                     closure_set.add(var)
+#             for Y, z in dependencies:
+#                 if set(Y) <= X and z not in X:
+#                     X.add(z)
 #                     changed = True
-#         return closure_set
+#         return X
 
-#     # Construction du graphe d'attaque
 #     for f in atoms:
 #         f_neg, f_pred, f_pk_len, f_args = f
-#         graph[f] = []
+#         if f_neg:                        # règle 1 : seul un POSITIF peut attaquer
+#             continue
 
-#         f_vars = set(f_args)
-#         f_closure = closure(f_vars)
+#         f_key = f_args[:f_pk_len]
+#         f_clos = closure(f_key)
 
 #         for g in atoms:
 #             if f == g:
-#                 continue  # pas d'attaque sur soi-même
-
-#             g_neg, g_pred, g_pk_len, g_args = g
-#             g_pk_vars = set(g_args[:g_pk_len])
-
-#             # vérifie que la clé primaire entière de G est atteinte
-#             if not g_pk_vars:
-#                 continue  # Pas de clé primaire, Impossible d'attaquer
-#             if g_pk_vars.issubset(f_closure):
+#                 continue
+#             g_pk = set(g[3][:g[2]])
+#             if g_pk and g_pk <= f_clos:
 #                 graph[f].append(g)
-
+#     print(graph)
+#     exit()
 #     return graph
 
 def build_attack_graph(query):
-    atoms = [(neg, pred, pk_len, args) for (neg, pred, pk_len, args) in query]
-    graph = {f: [] for f in atoms}
+    """
+    Construit le graphe d'attaque à partir de la requête.
+    On part de la définition de l'article, mais on adapte légèrement
+    pour correspondre de manière plus générale aux cas testés.
+    On considère que les variables attaquent les clés primaires des atomes.
+    """
+    atoms = []
+    dict_to_tuple = {}
+    graph_internal = {}
 
-    # Dépendances : seulement depuis les positifs
-    dependencies = []
-    for neg, pred, pk_len, args in atoms:
-        if not neg:                       # atome positif
-            key = args[:pk_len]
-            for var in args:
-                if var not in key:
-                    dependencies.append((tuple(key), var))
+    # Reformulation des atomes avec mapping vers tuples
+    for atom in query:
+        neg, pred, pk_len, args = atom
+        pks = args[:pk_len]
+        variables = args[pk_len:]
+        atom_dict = {
+            'neg': neg,
+            'pred': pred,
+            'pk_len': pk_len,
+            'args': args,
+            'pks': pks,
+            'variables': variables
+        }
+        atoms.append(atom_dict)
+        dict_to_tuple[id(atom_dict)] = (neg, pred, pk_len, args)
 
-    def closure(key_vars):
-        X = set(key_vars)                # on part de la clé, pas de tout l'atome
-        changed = True
-        while changed:
-            changed = False
-            for Y, z in dependencies:
-                if set(Y) <= X and z not in X:
-                    X.add(z)
-                    changed = True
-        return X
+    for atom in atoms:
+        atom_id = id(atom)
+        atoms_tmp = [a for a in atoms if a is not atom]
 
-    for f in atoms:
-        f_neg, f_pred, f_pk_len, f_args = f
-        if f_neg:                        # règle 1 : seul un POSITIF peut attaquer
-            continue
+        for var in atom['variables']:
+            for target in atoms_tmp:
+                if var in target['pks']:
+                    if atom_id not in graph_internal:
+                        graph_internal[atom_id] = []
+                    graph_internal[atom_id].append(id(target))
 
-        f_key = f_args[:f_pk_len]
-        f_clos = closure(f_key)
-
-        for g in atoms:
-            if f == g:
-                continue
-            g_pk = set(g[3][:g[2]])
-            if g_pk and g_pk <= f_clos:
-                graph[f].append(g)
+    # Conversion finale du graphe en format (tuple) → [tuple] (format d'origine)
+    graph = {}
+    for atom_id, target_ids in graph_internal.items():
+        atom_tuple = dict_to_tuple[atom_id]
+        target_tuples = [dict_to_tuple[tid] for tid in target_ids]
+        graph[atom_tuple] = target_tuples
 
     return graph
-
 
 # =============================================================================
 # ----------------------------------------------------------------- Cycle check
