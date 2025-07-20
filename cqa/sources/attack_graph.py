@@ -75,6 +75,9 @@ def build_attack_graph(query, trace=None):
     dict_to_tuple = {}
     graph_internal = {}
 
+    if trace is None:
+        trace = []
+
     # Reformulation des atomes avec mapping vers tuples
     trace.append(" - Extraction des atomes de la requête")
     for atom in query:

@@ -213,7 +213,7 @@ def rewrite(query, trace=None):
         return conj(query)
 
     # Sélection d’un atome non all-key unattacked
-    F = select_unattacked_non_all_key_atom(query, trace=trace)
+    F = select_unattacked_non_all_key_atom(query, trace=None)
     if F is None:
         trace.append(" - Aucun atome non-all-key unattacked → conjonction directe")
         return conj(query)

@@ -96,7 +96,7 @@ def db_satisfies(query, db):
 #  Sélection d’un atome non-all-key et unattacked
 
 def select_unattacked_non_all_key_atom(query, trace=None):
-    g = build_attack_graph(query, trace=trace)
+    g = build_attack_graph(query, trace=None) # on ne veut pas de trace ici
     indeg = {a: 0 for a in query}
     for src, outs in g.items():
         for tgt in outs:
