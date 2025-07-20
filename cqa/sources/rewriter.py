@@ -209,7 +209,7 @@ def rewrite(query, trace=None):
 
     # Cas base : tous les atomes sont all-key
     if all(is_all_key_atom(a) for a in query):
-        trace.append(" - Tous les atomes sont all-key → réécriture directe (conjonction)")
+        trace.append(" - Cas de base : tous les atomes sont all-key → réécriture directe (conjonction)")
         return conj(query)
 
     # Sélection d’un atome non all-key unattacked
