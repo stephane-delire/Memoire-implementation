@@ -64,7 +64,7 @@ suggéré à un endroit dans l'article.
 #     exit()
 #     return graph
 
-def build_attack_graph(query):
+def build_attack_graph(query, trace=None):
     """
     Construit le graphe d'attaque à partir de la requête.
     On part de la définition de l'article, mais on adapte légèrement
@@ -76,6 +76,7 @@ def build_attack_graph(query):
     graph_internal = {}
 
     # Reformulation des atomes avec mapping vers tuples
+    trace.append(" - Extraction des atomes de la requête")
     for atom in query:
         neg, pred, pk_len, args = atom
         pks = args[:pk_len]
@@ -91,6 +92,14 @@ def build_attack_graph(query):
         atoms.append(atom_dict)
         dict_to_tuple[id(atom_dict)] = (neg, pred, pk_len, args)
 
+    trace.append(f" - Nombre d'atomes extraits : {len(atoms)}")
+    # impression des atomes dans le trace
+    trace.append(" - Atomes extraits :")
+    for atom in atoms:
+        trace.append(f"   - {atom['neg']} {atom['pred']}({', '.join(atom['args'])})")
+    # Construction du graphe d'attaque
+    trace.append(" - Construction du graphe d'attaque")
+
     for atom in atoms:
         atom_id = id(atom)
         atoms_tmp = [a for a in atoms if a is not atom]
@@ -101,8 +110,21 @@ def build_attack_graph(query):
                     if atom_id not in graph_internal:
                         graph_internal[atom_id] = []
                     graph_internal[atom_id].append(id(target))
+    trace.append(f" - Nombre de dépendances trouvées : {len(graph_internal)}")
+    
+    # Impression des dépendances dans le trace
+    trace.append(" - Dépendances trouvées :")
+    for src_id, target_ids in graph_internal.items():
+        src_atom = dict_to_tuple[src_id]
+        src_name = f"{src_atom[1]}({', '.join(src_atom[3])})"
+        for tgt_id in target_ids:
+            tgt_atom = dict_to_tuple[tgt_id]
+            tgt_name = f"{tgt_atom[1]}({', '.join(tgt_atom[3])})"
+            trace.append(f"   - {src_name} ---> {tgt_name}")
+
 
     # Conversion finale du graphe en format (tuple) → [tuple] (format d'origine)
+    trace.append(" - Conversion du graphe interne en format final")
     graph = {}
     for atom_id, target_ids in graph_internal.items():
         atom_tuple = dict_to_tuple[atom_id]
@@ -113,30 +135,39 @@ def build_attack_graph(query):
 
 # =============================================================================
 # ----------------------------------------------------------------- Cycle check
-def detect_cycle(graph):
-    """
-    Détecte s'il existe un cycle dans le graphe d'attaque.
-    Algorithme basé sur DFS (Depth First Search).
-    """
-    visited = set()
-    stack = set()
+def detect_cycle(graph, trace=None):
+    def log(msg):
+        if trace is not None:
+            trace.append(msg)
 
-    def dfs(node):
-        if node in stack:
-            return True  # Cycle trouvé
-        if node in visited:
-            return False
-        visited.add(node)
-        stack.add(node)
-        for neighbor in graph.get(node, []):
-            if dfs(neighbor):
+    visited = set()
+    rec_stack = set()
+
+    def dfs(v):
+        log(f"Visite de {v}")
+        visited.add(v)
+        rec_stack.add(v)
+
+        for neighbour in graph.get(v, []):
+            log(f"  {v} → {neighbour}")
+            if neighbour not in visited:
+                if dfs(neighbour):
+                    log(f"Cycle détecté via {neighbour}")
+                    return True
+            elif neighbour in rec_stack:
+                log(f"Cycle trouvé : {neighbour} est dans la pile récursive")
                 return True
-        stack.remove(node)
+
+        rec_stack.remove(v)
         return False
 
     for node in graph:
-        if dfs(node):
-            return True
+        if node not in visited:
+            log(f"Lancement DFS depuis {node}")
+            if dfs(node):
+                return True
+
+    log("Pas de cycle détecté")
     return False
 
 # =============================================================================

@@ -32,30 +32,40 @@ def certainty(text, graph_png=False):
     :param graph_png: Si True, génère une image du graphe d'attaque.
     
     """
-    data, guarded, graph, cycle, certain, rewriting, latex = None, None, None, None, False, None, None
-    
+    data, guarded, graph, cycle, certain, rewriting, latex, trace = None, None, None, None, False, None, None, None
+
+    trace = []
+    trace.append("Initialisation de la fonction certainty")
     # =========================================================================
     # ------------------------------------------------------------------- Parse
     data = parse(text)
+    trace.append("Parsing terminé")
+
     # =========================================================================
     # -------------------------------------------------------------------- NGFO
-
-    guarded = is_guarded(data["query"])
+    trace.append("Début de la vérification de négation gardée : ")
+    guarded = is_guarded(data["query"], trace=trace)
     
-    # Si la requête n'est pas gardée, on ne continue pas
+    trace.append("Vérification de négation gardée terminée")
+    # Si la requête n'est pas sfj, on ne continue pas
     if not guarded[0]:
         if guarded[1] == "not sjf":
-            return data, guarded, graph, cycle, None, None, None
-        return data, guarded, graph, cycle, certain, None, None
+            trace.append("Requête non self-join free (SJF), arrêt de la fonction certainty")
+            return data, guarded, graph, cycle, None, None, None, trace
+        return data, guarded, graph, cycle, certain, None, None, trace
     # =========================================================================
     # ------------------------------------------------------------ Attack graph
+    trace.append("Début de la construction du graphe d'attaque")
+    print(trace)
     graph = {}
-    base_graph = build_attack_graph(data["query"])
+    base_graph= build_attack_graph(data["query"], trace=trace)
+    
     graph["base"] = base_graph
 
     # -------------------------------------------------- graphe Cycle
-    cycle = detect_cycle(base_graph)
-    graph["cycle"] = cycle
+    trace.append("Détection des cycles dans le graphe d'attaque (DFS)")
+    cycle = detect_cycle(base_graph, trace=trace)
+    graph["cycle"], trace = cycle, trace
     
     # ---------------------------------------------------- graphe txt
     txt_graph = print_attack_graph(base_graph)
@@ -72,7 +82,7 @@ def certainty(text, graph_png=False):
         except ImportError:
             print("graphviz not installed, graph_png set to None")
             graph_png = None
-
+        trace.append("Génération de l'image du graphe d'attaque")
         img = draw_attack_graph(base_graph)
         graph["png"] = base64.b64encode(img).decode('utf-8')
     
@@ -88,18 +98,20 @@ def certainty(text, graph_png=False):
 
     # =========================================================================
     # --------------------------------------------------------------- certainty
-    certain = is_certain_core(data["query"], data["database"])
+    certain = is_certain_core(data["query"], data["database"], trace=trace)
 
     # =========================================================================
     # ---------------------------------------------------------------- Rewriter
     # Réécriture de la requête, si gardée et acyclique (lemme 6.1)
+    trace.append("Début de la réécriture de la requête")
     if guarded[0] and not cycle:
-        rewriting = rewrite(data["query"])
+        rewriting = rewrite(data["query"], trace=trace)
         # Conversion de la réécriture en LaTeX
         latex = fo_to_latex(rewriting)
     else:
+        trace.append("Requête non gardée ou cyclique, pas de réécriture")
         rewriting = None
 
     # =========================================================================
     # ------------------------------------------------------------------ Return
-    return data, guarded, graph, cycle, certain, rewriting, latex
+    return data, guarded, graph, cycle, certain, rewriting, latex, trace

@@ -161,107 +161,129 @@ def fresh_relation():
 # -----------------------------------------------------------------------------
 #  Algo Principal  :  is_certain_core
 
-def is_certain_core(query, database_or_dict):
+def is_certain_core(query, database_or_dict, trace=None):
     """
     Implémentation de l'algorithme "IsCertain" pour une requête donnée.
 
     query      : [(neg, pred, pk_len, args), …]
     database   : soit la liste parsée par @database, soit déjà un dict {pred: […]}
+    trace      : liste dans laquelle on stocke les étapes de l’algorithme
     Renvoie True ssi la requête est vraie dans toutes les repairs de la BD.
     """
+    if trace is None:
+        trace = []
+
+    trace.append(f"== Appel is_certain_core sur requête : {query}")
 
     db = (database_or_dict if isinstance(database_or_dict, dict)
           else build_db_dict(database_or_dict))
-    # (0-bis) La base est déja conforme à toutes les clés
-    # ceci peut empecher l'erreur de "max recursion depth" plus loin
-    if all(len({fact[:pk_len] for fact in db.get(pred, [])}) == len(db.get(pred, []))
-        for pred, pk_len in {(a[1], a[2]) for a in query}):
-        return db_satisfies(query, db)
-    
+
+    # (0-bis) Base déjà conforme
+    all_keys_ok = all(len({fact[:pk_len] for fact in db.get(pred, [])}) == len(db.get(pred, []))
+                     for pred, pk_len in {(a[1], a[2]) for a in query})
+    if all_keys_ok:
+        trace.append(" - Base déjà conforme aux clés primaires → évaluation directe")
+        result = db_satisfies(query, db)
+        trace.append(f" → Résultat FO direct : {result}")
+        return result
+
     # 0) Requête vide
     if not query:
+        trace.append(" - Requête vide → True")
         return True
 
-    # 1) Tous les atomes sont all-key  → simple FO-évaluation
+    # 1) Tous les atomes sont all-key
     if is_all_key(query):
-        return db_satisfies(query, db)
+        trace.append(" - Tous les atomes sont all-key → évaluation FO directe")
+        result = db_satisfies(query, db)
+        trace.append(f" → Résultat FO : {result}")
+        return result
 
-    # 2) Choix de F  (non-all-key, unattacked)
+    # 2) Sélection de F
     F = select_unattacked_non_all_key_atom(query)
     if F is None:
-        return False    # sécurité, aucun atome non-all-key n’a été trouvé
+        trace.append(" - Aucun atome non-all-key unattacked trouvé → False (sécurité)")
+        return False
 
     neg_F, pred_F, pk_F, args_F = F
+    trace.append(f" - Atome choisi F : {F}")
 
     # -------------------------------------------------------------------------
-    # Branche A : key(F) ≠ ∅
-    # il existe une valuation sur le clé de F telle que IsCertain(q', db)
-    # est vrai
-    # -------------------------------------------------------------------------
+    # Branche A : clé non vide
     if pk_F > 0:
+        trace.append(" - Clé primaire de F non vide")
         for theta in key_valuations(F, db):
             q_theta = apply_valuation(query, theta)
             if q_theta == query:
-                continue # empeche l'erreur de "max recursion depth"
-            if is_certain_core(q_theta, db):           # EXISTENTIEL
+                continue
+            trace.append(f"   - Application de valuation {theta} → {q_theta}")
+            if is_certain_core(q_theta, db, trace):
+                trace.append("   → Une valuation a mené à True")
                 return True
+        trace.append("   → Aucune valuation n’a mené à True")
         return False
 
     # -------------------------------------------------------------------------
-    # Branche B : clé vide 
-    # key(F) = ∅      ⇒  F = R(ā, ȳ)  avec vars(ā)=∅
-    # -------------------------------------------------------------------------
-    # Séparation constants / variables dans F
+    # Branche B : clé vide
+    trace.append(" - Clé primaire de F vide")
     const_pos = [i for i, t in enumerate(args_F) if not is_variable(t)]
     var_pos   = [i for i, t in enumerate(args_F) if is_variable(t)]
 
-    # Tous les faits R(ā, b̄) compatibles avec ā
     relevant_facts = []
     for fact in db.get(pred_F, []):
         if all(fact[i] == args_F[i] for i in const_pos):
             relevant_facts.append(fact)
 
+    trace.append(f" - Faits compatibles avec les constantes : {relevant_facts}")
+
     if not relevant_facts:
-        return False     # Aucune instanciation possible
+        trace.append(" → Aucun fait compatible → False")
+        return False
 
     q_prime = [a for a in query if a is not F]
 
-    # ------------------------------------------------------------------ F négatif (lemme 6.5 et 6.6)
+    # ------------------------------------------------------------------ F négatif
     if neg_F:
-        # (i) IsCertain(q', db)
-        if not is_certain_core(q_prime, db):
+        trace.append(" - F est négatif")
+        if not is_certain_core(q_prime, db, trace):
+            trace.append("   → q' échoue → False")
             return False
 
-        # (ii) ∀ b̄ : IsCertain(q' ∪ {¬E(b̄)}, db ∪ {E(b̄)})
         for fact in relevant_facts:
             b_bar = tuple(fact[i] for i in var_pos)
             fresh = fresh_relation()
-            pk_len_E = len(b_bar)          # E est all-key
-            neg_E = (True,  fresh, pk_len_E, b_bar)
-            new_db = dict(db)              # shallow copy
+            pk_len_E = len(b_bar)
+            neg_E = (True, fresh, pk_len_E, b_bar)
+            new_db = dict(db)
             new_db.setdefault(fresh, []).append(b_bar)
-            if not is_certain_core(q_prime + [neg_E], new_db):
+            trace.append(f"   - Ajout de ¬{fresh}{b_bar} et appel récursif")
+            if not is_certain_core(q_prime + [neg_E], new_db, trace):
+                trace.append("   → Un ajout mène à False")
                 return False
+        trace.append("   → Tous les ajouts ont mené à True")
         return True
 
     # ------------------------------------------------------------------ F positif
     else:
+        trace.append(" - F est positif")
         y_vars = [args_F[i] for i in var_pos]
 
-        for fact in relevant_facts:        # EXISTENTIEL sur b̄
-            # On teste si ce candidat marche pour tous les b̄'
+        for fact in relevant_facts:
             ok_candidate = True
-            for fact2 in relevant_facts:   # UNIVERSALITÉ sur b̄'
-                theta = {}
-                for v, pos in zip(y_vars, var_pos):
-                    theta[v] = fact2[pos]
+            trace.append(f"   - Candidat : {fact}")
+            for fact2 in relevant_facts:
+                theta = {v: fact2[pos] for v, pos in zip(y_vars, var_pos)}
                 q_theta = apply_valuation(q_prime, theta)
                 if q_theta == q_prime:
                     ok_candidate = False
+                    trace.append("     - Theta inchangé → rejet")
                     break
-                if not is_certain_core(q_theta, db):
+                if not is_certain_core(q_theta, db, trace):
                     ok_candidate = False
+                    trace.append(f"     - Theta {theta} mène à False → rejet")
                     break
             if ok_candidate:
+                trace.append("   → Candidat accepté")
                 return True
+        trace.append("   → Aucun candidat accepté → False")
         return False

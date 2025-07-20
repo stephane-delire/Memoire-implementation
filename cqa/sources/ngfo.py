@@ -23,7 +23,7 @@ not Likes(t,p)    ← (t,p) apparaissent aussi dans Lives                       
 from itertools import combinations
 
 
-def is_guarded(query):
+def is_guarded(query, trace=None):
     """
     Extracte les atomes positifs et négatifs d'une requête.
     Vérifie si la requête est en NGFO, ou weakly-guarded.
@@ -39,21 +39,27 @@ def is_guarded(query):
     # Séparation des atomes positifs et négatifs
     q_plus = [a for a in query if not a[0]] # Atome positif
     q_minus = [a for a in query if a[0]] # Atome négatif
+    trace.append(f" - Atomes positifs : {q_plus}")
+    trace.append(f" - Atomes négatifs : {q_minus}")
 
     # sjf
     if not _is_self_join_free(q_plus):
+        trace.append(" - Requête non self-join free (SJF)")
         return False, "not sjf"
 
     # NGFO
     if _is_ngfo(q_plus, q_minus):
+        trace.append(" - Requête en NGFO")
         return True, "NGFO"
 
     # Weakly-guarded
     elif _is_weakly_guarded(q_plus, q_minus):
+        trace.append(" - Requête weakly-guarded")
         return True, "WG"
     
     # La requête n'est pas en NGFO, ni weakly-guarded
     else:
+        trace.append(" - Requête non NGFO, ni weakly-guarded")
         return False, None
 
 # =============================================================================

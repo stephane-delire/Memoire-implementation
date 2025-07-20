@@ -14,4 +14,4 @@ from sources.certainty import certainty
 with open("examples/base.cqa", "r") as f:
     text = f.read()
 
-data, guarded, graph, cycle, certain, rewrited, latex = certainty(text, graph_png=False)
+data, guarded, graph, cycle, certain, rewrited, latex, trace = certainty(text, graph_png=False)
