@@ -243,21 +243,32 @@ EditorExecuteBtn.addEventListener("click", function () {
                 const traceDiv = document.createElement("div");
                 traceDiv.classList.add("res_panel");
                 traceDiv.setAttribute("id", "result_trace");
+
                 const titleTrace = document.createElement("span");
                 titleTrace.classList.add("res_title");
                 titleTrace.innerHTML = "Trace";
                 traceDiv.appendChild(titleTrace);
-                const contentTrace = document.createElement("span");
+
+                const details = document.createElement("details");
+                const summary = document.createElement("summary");
+                summary.innerText = "Afficher la trace";
+                details.appendChild(summary);
+
+                const contentTrace = document.createElement("pre");
                 contentTrace.classList.add("res_content");
-                if (data.trace) {
-                    contentTrace.innerHTML = data.trace;
+
+                if (Array.isArray(data.trace)) {
+                    contentTrace.innerText = data.trace.join("\n");
+                } else {
+                    contentTrace.innerText = data.trace || "";
                 }
-                else {
-                    contentTrace.innerHTML = emptySvg;
-                }
-                traceDiv.appendChild(contentTrace);
-                var hr = document.createElement("hr");
+
+                details.appendChild(contentTrace);
+                traceDiv.appendChild(details);
+
+                const hr = document.createElement("hr");
                 hr.classList.add("res_hr");
+
                 resultContainer.appendChild(traceDiv);
                 resultContainer.appendChild(hr);
             }
