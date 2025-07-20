@@ -95,8 +95,8 @@ def db_satisfies(query, db):
 # -----------------------------------------------------------------------------
 #  Sélection d’un atome non-all-key et unattacked
 
-def select_unattacked_non_all_key_atom(query):
-    g = build_attack_graph(query)
+def select_unattacked_non_all_key_atom(query, trace=None):
+    g = build_attack_graph(query, trace=trace)
     indeg = {a: 0 for a in query}
     for src, outs in g.items():
         for tgt in outs:
@@ -200,7 +200,7 @@ def is_certain_core(query, database_or_dict, trace=None):
         return result
 
     # 2) Sélection de F
-    F = select_unattacked_non_all_key_atom(query)
+    F = select_unattacked_non_all_key_atom(query, trace=trace)
     if F is None:
         trace.append(" - Aucun atome non-all-key unattacked trouvé → False (sécurité)")
         return False
