@@ -92,7 +92,7 @@ def certainty(text, graph_png=False):
 
     # =========================================================================
     # ---------------------------------------------------------------- Rewriter
-    # Réécriture de la requête, si gardée et acyclique
+    # Réécriture de la requête, si gardée et acyclique (lemme 6.1)
     if guarded[0] and not cycle:
         rewriting = rewrite(data["query"])
         # Conversion de la réécriture en LaTeX

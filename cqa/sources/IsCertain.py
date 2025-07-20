@@ -1,18 +1,15 @@
 """
 --------------------------------------------------------------------------------
-Algorithm 1 
+Algorithm 
 
 Implémentation de l'algorithme "IsCertain" présent a la page 216.
 Il prend en entrée une requête et une base de données. 
-
-Si la requête est weakly-guarded, et son graphe d'attaque acyclique,
-alors il renvoie True...
 
 --------------------------------------------------------------------------------
 """
 from .attack_graph import build_attack_graph
 
-###############################################################################
+# -----------------------------------------------------------------------------
 #  Helpers génériques
 
 def is_variable(t):
@@ -68,8 +65,9 @@ def unify_tuple(template, fact, bindings):
     return new
 
 
-###############################################################################
-#  Évaluation d’une requête entièrement all-key  (lignes 1–2 de l’algo)
+# -----------------------------------------------------------------------------
+#  Évaluation d’une requête entièrement all-key (uniquement des pk)  
+# (lignes 1–2 de l’algo)
 
 def db_satisfies(query, db):
     pos = [a for a in query if not a[0]]
@@ -94,7 +92,7 @@ def db_satisfies(query, db):
     return backtrack(0, {})
 
 
-###############################################################################
+# -----------------------------------------------------------------------------
 #  Sélection d’un atome non-all-key et unattacked
 
 def select_unattacked_non_all_key_atom(query):
@@ -116,9 +114,8 @@ def select_unattacked_non_all_key_atom(query):
     return None   # devrait jamais arriver si la requête n’est pas vide
 
 
-###############################################################################
+# -----------------------------------------------------------------------------
 #  Sous-routines pour les valuations
-###############################################################################
 
 def key_valuations(atom, db):
     _, pred, pk_len, args = atom
@@ -151,7 +148,7 @@ def apply_valuation(query, theta):
     return new_q
 
 
-###############################################################################
+# -----------------------------------------------------------------------------
 #  Générateur de relations fraîches E1, E2, …
 
 _rel_counter = 0
@@ -161,14 +158,16 @@ def fresh_relation():
     return f"E{_rel_counter}"
 
 
-###############################################################################
-#  ALGORITHME PRINCIPAL  :  is_certain_core
+# -----------------------------------------------------------------------------
+#  Algo Principal  :  is_certain_core
 
 def is_certain_core(query, database_or_dict):
     """
-    query      : [(neg, pred, pk_len, args), …]   – exactement ton format
+    Implémentation de l'algorithme "IsCertain" pour une requête donnée.
+
+    query      : [(neg, pred, pk_len, args), …]
     database   : soit la liste parsée par @database, soit déjà un dict {pred: […]}
-    Renvoie True ssi la requête est vraie dans *tous* les repairs de la BD.
+    Renvoie True ssi la requête est vraie dans toutes les repairs de la BD.
     """
 
     db = (database_or_dict if isinstance(database_or_dict, dict)
@@ -190,12 +189,14 @@ def is_certain_core(query, database_or_dict):
     # 2) Choix de F  (non-all-key, unattacked)
     F = select_unattacked_non_all_key_atom(query)
     if F is None:
-        return False    # sécurité
+        return False    # sécurité, aucun atome non-all-key n’a été trouvé
 
     neg_F, pred_F, pk_F, args_F = F
 
     # -------------------------------------------------------------------------
-    #  BRANCHE  A  :  key(F) ≠ ∅
+    # Branche A : key(F) ≠ ∅
+    # il existe une valuation sur le clé de F telle que IsCertain(q', db)
+    # est vrai
     # -------------------------------------------------------------------------
     if pk_F > 0:
         for theta in key_valuations(F, db):
@@ -207,7 +208,8 @@ def is_certain_core(query, database_or_dict):
         return False
 
     # -------------------------------------------------------------------------
-    #  key(F) = ∅      ⇒  F = R(ā, ȳ)  avec vars(ā)=∅
+    # Branche B : clé vide 
+    # key(F) = ∅      ⇒  F = R(ā, ȳ)  avec vars(ā)=∅
     # -------------------------------------------------------------------------
     # Séparation constants / variables dans F
     const_pos = [i for i, t in enumerate(args_F) if not is_variable(t)]
@@ -224,7 +226,7 @@ def is_certain_core(query, database_or_dict):
 
     q_prime = [a for a in query if a is not F]
 
-    # ------------------------------------------------------------------ F négatif
+    # ------------------------------------------------------------------ F négatif (lemme 6.5 et 6.6)
     if neg_F:
         # (i) IsCertain(q', db)
         if not is_certain_core(q_prime, db):
