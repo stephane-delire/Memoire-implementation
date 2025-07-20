@@ -238,6 +238,30 @@ EditorExecuteBtn.addEventListener("click", function () {
 
             }
 
+            // Trace
+            if (data.trace) {
+                const traceDiv = document.createElement("div");
+                traceDiv.classList.add("res_panel");
+                traceDiv.setAttribute("id", "result_trace");
+                const titleTrace = document.createElement("span");
+                titleTrace.classList.add("res_title");
+                titleTrace.innerHTML = "Trace";
+                traceDiv.appendChild(titleTrace);
+                const contentTrace = document.createElement("span");
+                contentTrace.classList.add("res_content");
+                if (data.trace) {
+                    contentTrace.innerHTML = data.trace;
+                }
+                else {
+                    contentTrace.innerHTML = emptySvg;
+                }
+                traceDiv.appendChild(contentTrace);
+                var hr = document.createElement("hr");
+                hr.classList.add("res_hr");
+                resultContainer.appendChild(traceDiv);
+                resultContainer.appendChild(hr);
+            }
+
 
         });
     }
