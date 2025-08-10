@@ -314,6 +314,7 @@ def rewrite_closed(query, trace=None):
     Ferme la formule FO par des ∃ sur les variables de la requête d'origine
     (utile pour éviter des variables libres comme p dans ¬Lives(p,t)).
     """
+    print("rewrite_closed called")
     fo = rewrite(query, trace)
     # variables de la requête initiale
     base_vars = []
