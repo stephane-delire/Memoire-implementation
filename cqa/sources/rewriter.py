@@ -316,6 +316,7 @@ def rewrite_closed(query, trace=None):
     """
     print("rewrite_closed called")
     fo = rewrite(query, trace)
+    print(f"rewrite_closed result: {fo}")
     # variables de la requête initiale
     base_vars = []
     seen = set()
