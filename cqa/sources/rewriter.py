@@ -130,6 +130,7 @@
 from itertools import count
 from .IsCertain import is_variable, is_all_key_atom, select_unattacked_non_all_key_atom
 
+from itertools import count
 
 _var_counter = count(1)
 def _freshen_vars(vars_):
@@ -201,48 +202,39 @@ def _format_positive(pred, args):
 
 # -----------------------------------------------------------------------------
 #  réécriture principale (récursive)
-def rewrite(query, trace=None, _top=True, _root_vars=None):
+def rewrite(query, trace=None):
     """
-    Retourne une chaîne FO. Points clés:
+    Retourne une chaîne FO. Conforme aux points suivants:
       - sélection d’un atome non-all-key unattacked,
-      - pk>0 : négatif = ∀(vars hors-clé fraîches) (¬pred ∨ inner),
-               positif = cas spécial clé simple avec garde ; sinon ∃key(F)(F ∧ inner)
-      - pk=0 : symbole frais E pour négatif ; garde universelle,
-      - fermeture existentielle des variables de la requête UNIQUEMENT au niveau top.
+      - cas pk>0 : négatif = ∀ (vars hors-clé) (¬pred ∨ inner),
+                    positif = cas spécial clé simple avec garde ; sinon ∃key(F)(F ∧ inner)
+      - cas pk=0 : usage d’un symbole frais E pour le négatif ; garde universelle,
+      - cas de base all-key : conjonction fermée existentiellement sur les variables libres.
     """
     if trace is None:
         trace = []
-    if _root_vars is None:
-        _root_vars = _free_vars_atoms(query)
 
     trace.append(f"== Appel rewrite sur requête : {query}")
 
-    # Cas base : tous all-key -> NE PAS fermer ici si on est en récursion
+    # Cas base : tous all-key -> on ferme existentiellement les variables libres
     if all(is_all_key_atom(a) for a in query):
         base = conj(query)
-        if _top:
-            result = exists(_root_vars, base)
-            trace.append(" - Cas de base (top) : all-key → fermeture existentielle")
-            trace.append(f"   → {result}")
-            return result
-        else:
-            trace.append(" - Cas de base (inner) : all-key → conjonction brute")
-            trace.append(f"   → {base}")
-            return base
+        vars_ = _free_vars_atoms(query)
+        result = exists(vars_, base)
+        trace.append(" - Cas de base : all-key → fermeture existentielle des variables libres")
+        trace.append(f"   → {result}")
+        return result
 
-    # Sélection d’un atome non-all-key unattacked
+    # Sélection d’un atome non-all-key et unattacked (suivant l’algo)
     F = select_unattacked_non_all_key_atom(query, trace=trace)
     if F is None:
+        # sécurité : si rien de sélectionnable, on renvoie la conjonction fermée existentiellement
         base = conj(query)
-        if _top:
-            result = exists(_root_vars, base)
-            trace.append(" - Aucun atome sélectionnable (top) → fermeture existentielle")
-            trace.append(f"   → {result}")
-            return result
-        else:
-            trace.append(" - Aucun atome sélectionnable (inner) → conjonction brute")
-            trace.append(f"   → {base}")
-            return base
+        vars_ = _free_vars_atoms(query)
+        result = exists(vars_, base)
+        trace.append(" - Aucun atome non-all-key unattacked → conjonction fermée existentiellement")
+        trace.append(f"   → {result}")
+        return result
 
     trace.append(f" - Atome choisi pour élimination : {F}")
 
@@ -255,11 +247,12 @@ def rewrite(query, trace=None, _top=True, _root_vars=None):
     # A) Clé non vide
     if pk_len > 0:
         trace.append(f" - Clé non vide (pk_len = {pk_len}) → branche A")
-        inner = rewrite(rest_query, trace, _top=False, _root_vars=_root_vars)
+        inner = rewrite(rest_query, trace)
 
         if not neg:
             trace.append(" - F est positif")
             if len(key_vars) == 1:
+                # clé simple : schéma avec garde ∀y' ( pred(x,y') → inner )
                 x = key_vars[0]
                 y = [a for i, a in enumerate(args) if i >= pk_len and is_variable(a)]
                 yprime = [f"{v}′" for v in y]  # noms frais imprimés
@@ -268,11 +261,12 @@ def rewrite(query, trace=None, _top=True, _root_vars=None):
                 block_cond = forall(yprime, f"{block_guard} → {inner}")
                 result = exists(y, f"{block_atom} ⊓ {block_cond}")
                 trace.append(f"   - Clé simple → {result}")
-                return exists(_root_vars, result) if _top else result
+                return result
             else:
+                # clé multiple : on quantifie les variables de clé (variables seulement) et on conjonctionne
                 result = exists(key_vars, f"{atom_to_str(F)} ⊓ {inner}")
                 trace.append(f"   - Clé multiple → {result}")
-                return exists(_root_vars, result) if _top else result
+                return result
 
         else:
             trace.append(" - F est négatif")
@@ -285,32 +279,30 @@ def rewrite(query, trace=None, _top=True, _root_vars=None):
             antecedent = _format_positive(pred, ant_args)
             result = forall(uvars, f"¬{antecedent} ⊔ {inner}")
             trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais) → {result}")
-            return exists(_root_vars, result) if _top else result
+            return result
 
     # -----------------------------------------------------------
     # B) Clé vide
     trace.append(" - Clé vide → branche B")
     var_part = [t for t in args if is_variable(t)]
     fresh_E = fresh_rel()
-    inner = rewrite(rest_query, trace, _top=False, _root_vars=_root_vars)
+    inner = rewrite(rest_query, trace)
 
     if neg:
         trace.append(" - F est négatif")
-        inner_negE = rewrite(
-            rest_query + [(True, fresh_E, len(var_part), tuple(var_part))],
-            trace, _top=False, _root_vars=_root_vars
-        )
+        # ajoute not E(var_part) dans la requête résiduelle
+        inner_negE = rewrite(rest_query + [(True, fresh_E, len(var_part), tuple(var_part))], trace)
         guarded = forall(var_part, f"{_format_positive(pred, list(args))} → {inner_negE}")
         result = f"{inner} ⊓ {guarded}"
         trace.append(f"   - Négatif pk=0 avec symbole frais → {result}")
-        return exists(_root_vars, result) if _top else result
+        return result
     else:
         trace.append(" - F est positif")
         theta_inner = exists(var_part, inner)
         guarded = forall(var_part, f"{_format_positive(pred, list(args))} → {theta_inner}")
         result = exists(var_part, f"{_format_positive(pred, list(args))} ⊓ {guarded}")
         trace.append(f"   - Positif pk=0 → {result}")
-        return exists(_root_vars, result) if _top else result
+        return result
 
 def rewrite_closed(query, trace=None):
     """
