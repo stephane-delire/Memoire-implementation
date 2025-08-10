@@ -311,17 +311,27 @@ def rewrite(query, trace=None):
 
 def rewrite_closed(query, trace=None):
     """
-    Ferme la formule FO par des ∃ sur les variables de la requête d'origine
-    (utile pour éviter des variables libres comme p dans ¬Lives(p,t)).
+    Ferme la formule FO par des ∃ sur les variables de la requête d'origine.
     """
-    print("rewrite_closed called")
+    if trace is None:
+        trace = []
+
+    trace.append("[rewrite_closed] called")
+
+    # 1) Formule intermédiaire (peut contenir des ∀ internes)
     fo = rewrite(query, trace)
-    print(f"rewrite_closed result: {fo}")
-    # variables de la requête initiale
-    base_vars = []
-    seen = set()
+    trace.append(f"[rewrite_closed] after rewrite => {fo}")
+
+    # 2) Variables de la requête d’origine à fermer
+    base_vars, seen = [], set()
     for (_, _, _, args) in query:
         for a in args:
             if is_variable(a) and a not in seen:
-                seen.add(a); base_vars.append(a)
-    return exists(base_vars, fo)
+                seen.add(a)
+                base_vars.append(a)
+    trace.append(f"[rewrite_closed] base_vars (to existentially close) => {base_vars}")
+
+    # 3) Fermeture existentielle en tête
+    closed = exists(base_vars, fo)
+    trace.append(f"[rewrite_closed] final (closed) => {closed}")
+    return closed

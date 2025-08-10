@@ -106,6 +106,7 @@ def certainty(text, graph_png=False):
     trace.append("\nDébut de la réécriture de la requête")
     if guarded[0] and not cycle:
         rewriting = rewrite_closed(data["query"], trace=trace)
+        print("Rewriting:", rewriting)
         # Conversion de la réécriture en LaTeX
         latex = fo_to_latex(rewriting)
     else:
