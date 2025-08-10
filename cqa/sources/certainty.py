@@ -15,7 +15,7 @@ from .ngfo import is_guarded
 from .attack_graph import build_attack_graph, detect_cycle, print_attack_graph
 from .attack_graph import draw_attack_graph
 from .IsCertain import is_certain_core
-from .rewriter import rewrite, fo_to_latex
+from .rewriter import rewrite, fo_to_latex, rewrite_closed
 import base64
 
 
@@ -105,7 +105,7 @@ def certainty(text, graph_png=False):
     # Réécriture de la requête, si gardée et acyclique (lemme 6.1)
     trace.append("\nDébut de la réécriture de la requête")
     if guarded[0] and not cycle:
-        rewriting = rewrite(data["query"], trace=trace)
+        rewriting = rewrite_closed(data["query"], trace=trace)
         # Conversion de la réécriture en LaTeX
         latex = fo_to_latex(rewriting)
     else:

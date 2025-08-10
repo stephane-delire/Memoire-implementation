@@ -130,6 +130,17 @@
 from itertools import count
 from .IsCertain import is_variable, is_all_key_atom, select_unattacked_non_all_key_atom
 
+from itertools import count
+
+_var_counter = count(1)
+def _freshen_vars(vars_):
+    # t -> t1, p -> p2, etc.
+    return [f"{v}{next(_var_counter)}" for v in vars_]
+
+def _non_key_var_positions(atom):
+    neg, pred, pk_len, args = atom
+    return [i for i in range(pk_len, len(args)) if is_variable(args[i])]
+
 # -----------------------------------------------------------------------------
 #  Pretty-printing FO
 def atom_to_str(atom):
@@ -259,10 +270,15 @@ def rewrite(query, trace=None):
 
         else:
             trace.append(" - F est négatif")
-            # IMPORTANT : universaliser SEULEMENT les variables hors-clé
-            antecedent = _format_positive(pred, list(args))
-            result = forall(non_key_vars, f"¬{antecedent} ⊔ {inner}")
-            trace.append(f"   - Négatif pk>0 (∀ hors-clé) → {result}")
+            # universaliser seulement les variables hors-clé, avec nouveaux noms
+            idxs = _non_key_var_positions(F)
+            uvars = _freshen_vars(non_key_vars)  # ex: ['t1']
+            ant_args = list(args)
+            for j, newv in zip(idxs, uvars):
+                ant_args[j] = newv
+            antecedent = _format_positive(pred, ant_args)
+            result = forall(uvars, f"¬{antecedent} ⊔ {inner}")
+            trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais) → {result}")
             return result
 
     # -----------------------------------------------------------
@@ -287,3 +303,18 @@ def rewrite(query, trace=None):
         result = exists(var_part, f"{_format_positive(pred, list(args))} ⊓ {guarded}")
         trace.append(f"   - Positif pk=0 → {result}")
         return result
+
+def rewrite_closed(query, trace=None):
+    """
+    Ferme la formule FO par des ∃ sur les variables de la requête d'origine
+    (utile pour éviter des variables libres comme p dans ¬Lives(p,t)).
+    """
+    fo = rewrite(query, trace)
+    # variables de la requête initiale
+    base_vars = []
+    seen = set()
+    for (_, _, _, args) in query:
+        for a in args:
+            if is_variable(a) and a not in seen:
+                seen.add(a); base_vars.append(a)
+    return exists(base_vars, fo)
