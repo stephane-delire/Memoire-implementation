@@ -130,7 +130,6 @@
 from itertools import count
 from .IsCertain import is_variable, is_all_key_atom, select_unattacked_non_all_key_atom
 
-from itertools import count
 
 _var_counter = count(1)
 def _freshen_vars(vars_):
@@ -219,22 +218,18 @@ def rewrite(query, trace=None):
     # Cas base : tous all-key -> on ferme existentiellement les variables libres
     if all(is_all_key_atom(a) for a in query):
         base = conj(query)
-        vars_ = _free_vars_atoms(query)
-        result = exists(vars_, base)
-        trace.append(" - Cas de base : all-key → fermeture existentielle des variables libres")
-        trace.append(f"   → {result}")
-        return result
+        trace.append(" - Cas de base : all-key → conjonction brute")
+        trace.append(f"   → {base}")
+        return base
 
     # Sélection d’un atome non-all-key et unattacked (suivant l’algo)
     F = select_unattacked_non_all_key_atom(query, trace=trace)
     if F is None:
         # sécurité : si rien de sélectionnable, on renvoie la conjonction fermée existentiellement
         base = conj(query)
-        vars_ = _free_vars_atoms(query)
-        result = exists(vars_, base)
-        trace.append(" - Aucun atome non-all-key unattacked → conjonction fermée existentiellement")
-        trace.append(f"   → {result}")
-        return result
+        trace.append(" - Aucun atome non-all-key unattacked → conjonction brute")
+        trace.append(f"   → {base}")
+        return base
 
     trace.append(f" - Atome choisi pour élimination : {F}")
 
@@ -252,12 +247,22 @@ def rewrite(query, trace=None):
         if not neg:
             trace.append(" - F est positif")
             if len(key_vars) == 1:
-                # clé simple : schéma avec garde ∀y' ( pred(x,y') → inner )
+                # clé simple : garder TOUTES les positions hors-clé (constantes incluses)
                 x = key_vars[0]
-                y = [a for i, a in enumerate(args) if i >= pk_len and is_variable(a)]
-                yprime = [f"{v}′" for v in y]  # noms frais imprimés
-                block_atom = _format_positive(pred, [x] + y)
-                block_guard = _format_positive(pred, [x] + yprime)
+                tail_args = list(args[pk_len:])                      # mélange vars/constantes
+                var_pos   = [i for i, a in enumerate(tail_args) if is_variable(a)]
+                y         = [tail_args[i] for i in var_pos]          # seules les variables
+                yprime    = [f"{v}′" for v in y]                     # variables fraîches
+
+                # atome pour le témoin (constantes intactes)
+                block_atom = _format_positive(pred, [x] + tail_args)
+
+                # garde universelle : on remplace seulement les variables par leurs copies y′
+                tail_prime = tail_args[:]
+                for i, v in zip(var_pos, yprime):
+                    tail_prime[i] = v
+                block_guard = _format_positive(pred, [x] + tail_prime)
+
                 block_cond = forall(yprime, f"{block_guard} → {inner}")
                 result = exists(y, f"{block_atom} ⊓ {block_cond}")
                 trace.append(f"   - Clé simple → {result}")
