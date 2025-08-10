@@ -313,6 +313,9 @@ def rewrite_closed(query, trace=None):
     """
     Ferme la formule FO par des ∃ sur les variables de la requête d'origine.
     """
+    global _var_counter, _fresh
+    _var_counter = count(1)   # reset pour les variables fraîches t1, t2, …
+    _fresh = count(1)         # reset pour les prédicats frais E1, E2, …
     if trace is None:
         trace = []
 
