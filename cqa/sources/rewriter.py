@@ -138,44 +138,43 @@ def rewrite(query, trace=None):
 
         if not neg:
             trace.append(" - F est positif")
-            if len(key_vars) == 1:
-                # clé simple : garder TOUTES les positions hors-clé (constantes incluses)
-                x = key_vars[0]
-                tail_args = list(args[pk_len:])                      # mélange vars/constantes
-                var_pos   = [i for i, a in enumerate(tail_args) if is_variable(a)]
-                y         = [tail_args[i] for i in var_pos]          # seules les variables
-                yprime    = [f"{v}′" for v in y]                     # variables fraîches
 
-                # atome pour le témoin (constantes intactes)
-                block_atom = _format_positive(pred, [x] + tail_args)
+            # 1) formulation de l'intérieur
+            inner = rewrite(rest_query, trace)
 
-                # garde universelle : on remplace seulement les variables par leurs copies y′
-                tail_prime = tail_args[:]
-                for i, v in zip(var_pos, yprime):
-                    tail_prime[i] = v
-                block_guard = _format_positive(pred, [x] + tail_prime)
+            # 2) hors-clé : distincts + copies fraîches
+            mapping, positions = _distinct_non_key_var_map(F)
+            y = list(mapping.keys())        # variables hors-clé originales
+            yprime = list(mapping.values()) # leurs copies fraîches (∀)
 
-                block_cond = forall(yprime, f"{block_guard} → {inner}")
-                result = exists(y, f"{block_atom} ⊓ {block_cond}")
-                trace.append(f"   - Clé simple → {result}")
-                return result
-            else:
-                # clé multiple : on quantifie les variables de clé (variables seulement) et on conjonctionne
-                result = exists(key_vars, f"{atom_to_str(F)} ⊓ {inner}")
-                trace.append(f"   - Clé multiple → {result}")
-                return result
+            # 3) atome-témoin exact (avec constantes hors-clé intactes)
+            block_atom = _format_positive(pred, list(args))
+
+            # 4) atome-garde : on remplace chacune des var hors-clé par sa copie fraîche partout
+            guard_args = list(args)
+            for v, newv in mapping.items():
+                for j in positions[v]:
+                    guard_args[j] = newv
+            block_guard = _format_positive(pred, guard_args)
+
+            # 5) garde universelle + témoin existentiel
+            #    (si y est vide, exists([], ...) et forall([], ...) tombent à l'intérieur pur)
+            block_cond = forall(yprime, f"{block_guard} → {inner}")
+            result = exists(y, f"{block_atom} ⊓ {block_cond}")
+            trace.append(f"   - Clé non vide (garde ∀ sur hors-clé, témoin ∃) → {result}")
+            return result
 
         else:
             trace.append(" - F est négatif")
-            # universaliser seulement les variables hors-clé, avec nouveaux noms
-            idxs = _non_key_var_positions(F)
-            uvars = _freshen_vars(non_key_vars)  # ex: ['t1']
+            mapping, positions = _distinct_non_key_var_map(F)
+            uvars = list(mapping.values())  # quantifier une fois par var distincte
             ant_args = list(args)
-            for j, newv in zip(idxs, uvars):
-                ant_args[j] = newv
+            for v, newv in mapping.items():
+                for j in positions[v]:
+                    ant_args[j] = newv
             antecedent = _format_positive(pred, ant_args)
-            result = forall(uvars, f"¬{antecedent} ⊔ {inner}")
-            trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais) → {result}")
+            result = forall(uvars, f"¬{antecedent} ⊔ {inner}")   # équiv. à (antecedent → inner)
+            trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais par variable) → {result}")
             return result
 
     # -----------------------------------------------------------
