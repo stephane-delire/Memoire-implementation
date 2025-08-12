@@ -16,6 +16,22 @@ def _non_key_var_positions(atom):
     neg, pred, pk_len, args = atom
     return [i for i in range(pk_len, len(args)) if is_variable(args[i])]
 
+def _distinct_non_key_var_map(atom):
+    """Retourne (mapping, positions) pour les variables hors-clé.
+       mapping: { var -> fresh_var }
+       positions: { var -> [pos1, pos2, ...] } (toutes les occurrences)
+    """
+    neg, pred, pk_len, args = atom
+    mapping = {}
+    positions = {}
+    for j in range(pk_len, len(args)):
+        a = args[j]
+        if is_variable(a):
+            if a not in mapping:
+                mapping[a] = f"{a}{next(_var_counter)}"  # un seul frais par variable
+            positions.setdefault(a, []).append(j)
+    return mapping, positions
+
 # -----------------------------------------------------------------------------
 #  Pretty-printing FO
 def atom_to_str(atom):

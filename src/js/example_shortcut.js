@@ -64,18 +64,18 @@ Not N(C; y)
 });
 
 btnShrt4.addEventListener("click", function () {
-    Editor.value = `# Weakly guarded
-
+    Editor.value = `# Figure 2
 @database
-P(a, b;)
-Q(a, c;)
-R(c, b;)
+S(john;)
+Na(name; var)
+Nb(name; var)
+Nc(name; var)
 
 @query
-P(x, y;)
-Q(x, z;)
-R(z, y;)
-not S(x, y, z)`;
+S(x;)
+not Na(Dupont; a)
+not Nb(Dupont; b)
+not Nc(Dupont; c)`;
 });
 
 btnShrt5.addEventListener("click", function () {
