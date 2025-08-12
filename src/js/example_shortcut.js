@@ -79,7 +79,26 @@ not Nc(Dupont; c)`;
 });
 
 btnShrt5.addEventListener("click", function () {
-    Editor.value = `# Exemple 4.6
+    Editor.value = `
+# Exemple 4.6
+# Requete q_a
+
+@database
+Likes(John, Paris;)
+Lives(John; London)
+Born(Paris; Hidalgo)
+Born(London; Khan)
+
+@query
+Lives(p;t)
+not Born(p;t)
+not Likes(p, t;)
+    `;
+});
+
+btnShrt6.addEventListener("click", function () {
+    Editor.value = `
+# Exemple 4.6
 # Requete q_b
 
 @database
@@ -91,19 +110,22 @@ Born(London; Khan)
 @query
 Likes(p,t;)
 not Lives(p;t)
-not Born(p;t)`;
-});
-
-btnShrt6.addEventListener("click", function () {
-    Editor.value = `@database
-P(a; b)
-Q(b; c)
-R(c; a)
-D(a, b, c;)
-@query
-P(x; y)
-Q(y; z)
-R(z; x)
-not D(x, y, z)
+not Born(p;t)
 `;
 });
+
+/*
+# Exemple 4.6
+# Requete q_b
+
+@database
+Likes(John, Paris;)
+Lives(John; London)
+Born(Paris; Hidalgo)
+Born(London; Khan)
+
+@query
+Likes(p,t;)
+not Lives(p;t)
+not Born(p;t)
+*/
