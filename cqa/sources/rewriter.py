@@ -173,7 +173,7 @@ def rewrite(query, trace=None):
                 for j in positions[v]:
                     ant_args[j] = newv
             antecedent = _format_positive(pred, ant_args)
-            result = forall(uvars, f"¬{antecedent} ⊔ {inner}")   # équiv. à (antecedent → inner)
+            result = forall(uvars, f"{antecedent} → {inner}")   # équiv. à (antecedent → inner)
             trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais par variable) → {result}")
             return result
 
