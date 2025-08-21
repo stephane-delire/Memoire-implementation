@@ -238,8 +238,11 @@ def rewrite(query, trace=None):
             witnesses = _vars_in_atoms(rest_query)   # simple et robuste
             inner_exist = exists(witnesses, guarded) # exists([], φ) doit rendre φ inchangé
 
-            result = forall(zvars, f"{antecedent} → {inner_exist}")
-            trace.append(f"   - Négatif pk>0 (∀ par position; ∃ inside; ¬(∧=)) → {result}")
+            # 5) >>> ICI LA DIFFÉRENCE IMPORTANTE <<<
+            guard_clause = forall(zvars, f"{antecedent} → {inner_exist}")
+            result = f"{inner} ⊓ {guard_clause}"   # on conserve inner AU NIVEAU COURANT
+            trace.append("   - Négatif pk>0 → inner ∧ ∀(ant → ∃(inner ∧ ¬(∧=)))")
+
             return result
 
     # -----------------------------------------------------------
