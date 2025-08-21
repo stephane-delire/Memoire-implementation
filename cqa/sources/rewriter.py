@@ -91,14 +91,28 @@ def _free_vars_atoms(atoms):
 def _format_positive(pred, args):
     return f"{pred}({', '.join(args)})"
 
-def _fresh_nonkey_per_position(F):
+# nonkey helpers (post memoire)
+def _nonkey_positions(F):
+    """Renvoie les indices de positions hors-clé, en supposant que
+    les positions de clé sont les 'pk_len' premières."""
     neg, pred, pk_len, args = F
-    # suppose que une table des positions de clé : key_pos[pred] -> set(indices)
-    kpos = key_pos[pred]
     n = len(args)
-    nonkey_pos = [i for i in range(n) if i not in kpos]
+    return [i for i in range(n) if i >= pk_len]
 
-    # une variable fraîche par POSITION
+# si tu n’as pas déjà un fresh_var():
+def fresh_var(prefix="z"):
+    global _var_counter
+    try:
+        _var_counter
+    except NameError:
+        from itertools import count
+        _var_counter = count(1)
+    return f"{prefix}{next(_var_counter)}"
+
+def _fresh_nonkey_per_position(F):
+    """Une variable fraîche par **position hors-clé** (inclut constantes/répétitions dans les égalités)."""
+    neg, pred, pk_len, args = F
+    nonkey_pos = _nonkey_positions(F)
     zvars = [fresh_var() for _ in nonkey_pos]
 
     # antécédent: R(key, z...) en remplaçant chaque position hors-clé par sa fraîche
@@ -106,11 +120,18 @@ def _fresh_nonkey_per_position(F):
     for i, zi in zip(nonkey_pos, zvars):
         ant_args[i] = zi
 
-    # conjonction d’égalités positionnelles: zi = arg_original(i)
-    # (garde les constantes et les répétitions telles quelles)
+    # égalités positionnelles: zi = args[i] (constantes ou variables, répétitions incluses)
     eq_atoms = [f"{zi} = {args[i]}" for i, zi in zip(nonkey_pos, zvars)]
-
     return zvars, ant_args, eq_atoms
+
+def _vars_in_atoms(atoms):
+    """Variables (strings) apparaissant dans une liste d’atomes."""
+    vs = set()
+    for (neg, pred, pk_len, args) in atoms:
+        for a in args:
+            if is_variable(a):
+                vs.add(a)
+    return sorted(vs)
 
 # -----------------------------------------------------------------------------
 #  réécriture principale (récursive)
@@ -209,19 +230,16 @@ def rewrite(query, trace=None):
             # 2) réécriture du reste
             inner = rewrite(rest_query, trace)
 
-            # 3) négation de la conjonction d’égalités (si pas d’hors-clé, prend ⊤)
+            # 3) négation de la conjonction d’égalités (si pas d’hors-clé → ⊤)
             eq_conj = " ⊓ ".join(eq_atoms) if eq_atoms else "⊤"
-            guarded_inner = f"{inner} ⊓ ¬({eq_conj})"
+            guarded = f"{inner} ⊓ ¬({eq_conj})"
 
-            # 4) ∃ à l’intérieur pour permettre la dépendance à z (comme chez Wijsen)
-            #    Si tu as un calcul des témoins, utilise-le ici :
-            #    witnesses = free_vars_of(inner) - currently_bound
-            #    inner_exist = exists(witnesses, guarded_inner)
-            #    À défaut, si inner encapsule déjà ses ∃, on peut laisser tel quel :
-            inner_exist = guarded_inner
+            # 4) ∃ **à l’intérieur** (témoins pouvant dépendre de z)
+            witnesses = _vars_in_atoms(rest_query)   # simple et robuste
+            inner_exist = exists(witnesses, guarded) # exists([], φ) doit rendre φ inchangé
 
             result = forall(zvars, f"{antecedent} → {inner_exist}")
-            trace.append(f"   - Négatif pk>0 (∀ par position; ¬(∧=) dans le conséquent) → {result}")
+            trace.append(f"   - Négatif pk>0 (∀ par position; ∃ inside; ¬(∧=)) → {result}")
             return result
 
     # -----------------------------------------------------------
