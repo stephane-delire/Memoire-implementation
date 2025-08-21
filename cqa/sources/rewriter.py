@@ -91,6 +91,27 @@ def _free_vars_atoms(atoms):
 def _format_positive(pred, args):
     return f"{pred}({', '.join(args)})"
 
+def _fresh_nonkey_per_position(F):
+    neg, pred, pk_len, args = F
+    # suppose que une table des positions de clé : key_pos[pred] -> set(indices)
+    kpos = key_pos[pred]
+    n = len(args)
+    nonkey_pos = [i for i in range(n) if i not in kpos]
+
+    # une variable fraîche par POSITION
+    zvars = [fresh_var() for _ in nonkey_pos]
+
+    # antécédent: R(key, z...) en remplaçant chaque position hors-clé par sa fraîche
+    ant_args = list(args)
+    for i, zi in zip(nonkey_pos, zvars):
+        ant_args[i] = zi
+
+    # conjonction d’égalités positionnelles: zi = arg_original(i)
+    # (garde les constantes et les répétitions telles quelles)
+    eq_atoms = [f"{zi} = {args[i]}" for i, zi in zip(nonkey_pos, zvars)]
+
+    return zvars, ant_args, eq_atoms
+
 # -----------------------------------------------------------------------------
 #  réécriture principale (récursive)
 def rewrite(query, trace=None):
@@ -164,17 +185,43 @@ def rewrite(query, trace=None):
             trace.append(f"   - Clé non vide (garde ∀ sur hors-clé, témoin ∃) → {result}")
             return result
 
+        # Branche else, pré mémoire
+        # else:
+        #     trace.append(" - F est négatif")
+        #     mapping, positions = _distinct_non_key_var_map(F)
+        #     uvars = list(mapping.values())  # quantifier une fois par var distincte
+        #     ant_args = list(args)
+        #     for v, newv in mapping.items():
+        #         for j in positions[v]:
+        #             ant_args[j] = newv
+        #     antecedent = _format_positive(pred, ant_args)
+        #     result = forall(uvars, f"{antecedent} → {inner}")   # équiv. à (antecedent → inner)
+        #     trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais par variable) → {result}")
+        #     return result
+        # Branche else, post mémoire...
         else:
             trace.append(" - F est négatif")
-            mapping, positions = _distinct_non_key_var_map(F)
-            uvars = list(mapping.values())  # quantifier une fois par var distincte
-            ant_args = list(args)
-            for v, newv in mapping.items():
-                for j in positions[v]:
-                    ant_args[j] = newv
+
+            # 1) fraiches par position + antécédent + égalités
+            zvars, ant_args, eq_atoms = _fresh_nonkey_per_position(F)
             antecedent = _format_positive(pred, ant_args)
-            result = forall(uvars, f"{antecedent} → {inner}")   # équiv. à (antecedent → inner)
-            trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais par variable) → {result}")
+
+            # 2) réécriture du reste
+            inner = rewrite(rest_query, trace)
+
+            # 3) négation de la conjonction d’égalités (si pas d’hors-clé, prend ⊤)
+            eq_conj = " ⊓ ".join(eq_atoms) if eq_atoms else "⊤"
+            guarded_inner = f"{inner} ⊓ ¬({eq_conj})"
+
+            # 4) ∃ à l’intérieur pour permettre la dépendance à z (comme chez Wijsen)
+            #    Si tu as un calcul des témoins, utilise-le ici :
+            #    witnesses = free_vars_of(inner) - currently_bound
+            #    inner_exist = exists(witnesses, guarded_inner)
+            #    À défaut, si inner encapsule déjà ses ∃, on peut laisser tel quel :
+            inner_exist = guarded_inner
+
+            result = forall(zvars, f"{antecedent} → {inner_exist}")
+            trace.append(f"   - Négatif pk>0 (∀ par position; ¬(∧=) dans le conséquent) → {result}")
             return result
 
     # -----------------------------------------------------------
