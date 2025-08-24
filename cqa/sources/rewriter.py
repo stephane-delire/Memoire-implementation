@@ -139,10 +139,13 @@ def rewrite(query, trace=None):
     """
     Retourne une chaîne FO. Conforme aux points suivants:
       - sélection d’un atome non-all-key unattacked,
-      - cas pk>0 : négatif = ∀ (vars hors-clé) (¬pred ∨ inner),
-                    positif = cas spécial clé simple avec garde ; sinon ∃key(F)(F ∧ inner)
+      - cas pk>0 :
+          * négatif = ∀ (fraîches par position hors-clé) [
+              R(key, z) → ∃( rew(rest) ∧ ¬(∧ égalités positionnelles z_i = arg_i) )
+            ]  ET  rew(rest) au niveau courant (conjonction extérieure),
+          * positif = cas spécial clé simple avec garde ; sinon ∃key(F)(F ⊓ rew(rest))
       - cas pk=0 : usage d’un symbole frais E pour le négatif ; garde universelle,
-      - cas de base all-key : conjonction fermée existentiellement sur les variables libres.
+      - cas de base all-key : conjonction fermée sur les variables libres.
     """
     if trace is None:
         trace = []
@@ -220,7 +223,7 @@ def rewrite(query, trace=None):
         #     trace.append(f"   - Négatif pk>0 (∀ hors-clé, frais par variable) → {result}")
         #     return result
         # Branche else, post mémoire...
-        else:
+        else: # Nouvelle branche post mémoire...
             trace.append(" - F est négatif")
 
             # 1) fraiches par position + antécédent + égalités

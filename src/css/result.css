@@ -35,6 +35,10 @@
     font-size: 18px;
 }
 
+.latex_content {
+    overflow-y: auto;
+    font-size: 14px;
+}
 
 /* animation on editor empty */
 @keyframes shake {
