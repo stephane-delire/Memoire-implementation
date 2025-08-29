@@ -15,36 +15,37 @@ const btnShrt6 = document.getElementById("exemple_6");
 // ----------------------------------------------------------------------------
 // event listeners
 btnShrt1.addEventListener("click", function () {
-  Editor.value = `# Exemple de base
-# Reçu par mail
-
+  Editor.value = `# Exemple 1 de la présentation
+# Cyclique
 @database
 Likes(John, Paris;)
 Lives(John; London)
-Mayor(Paris; Hidalgo)
-Mayor(London; Khan)
+Lives(John; Paris)
+Mayor(John; London)
+Born(John; Brussels)
 
 @query
 Likes(p,t;)
 not Lives(p;t)
-not Mayor(t;p)`;
+not Mayor(t;p)
+`;
 });
 
 btnShrt2.addEventListener("click", function () {
-  Editor.value = `# Exemple 4.5 de l'article
-# Mais pas certain
-
+  Editor.value = `# Exemple 2 de la présentation
+# Cyclique
 @database
-P(1; A)
-P(1; B)
-N(C; A)
+Likes(John, Paris;)
+Lives(John; London)
+Lives(John; Paris)
+Mayor(John; London)
+Born(John; Brussels)
 
 @query
-P(x; y)
-Not N(C; y)
-
-# Doit etre clique guarded
-# et réécrit`;
+Lives(p;t)
+not Born(p;t)
+not Likes(p;t)
+`;
 });
 
 btnShrt3.addEventListener("click", function () {
