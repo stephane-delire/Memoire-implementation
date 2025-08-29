@@ -179,7 +179,7 @@ def rewrite(query, trace=None):
     # A) Clé non vide
     if pk_len > 0:
         trace.append(f" - Clé non vide (pk_len = {pk_len}) → branche A")
-        inner = rewrite(rest_query, trace)
+        # inner = rewrite(rest_query, trace)
 
         if not neg:
             trace.append(" - F est positif")
@@ -238,8 +238,9 @@ def rewrite(query, trace=None):
             guarded = f"{inner} ⊓ ¬({eq_conj})"
 
             # 4) ∃ **à l’intérieur** (témoins pouvant dépendre de z)
-            witnesses = _vars_in_atoms(rest_query)   # simple et robuste
-            inner_exist = exists(witnesses, guarded) # exists([], φ) doit rendre φ inchangé
+            # witnesses = _vars_in_atoms(rest_query)   # simple et robuste
+            # inner_exist = exists(witnesses, guarded) # exists([], φ) doit rendre φ inchangé
+            inner_exist = guarded  # on ne quantifie pas, cf. erratum
 
             # 5) >>> ICI LA DIFFÉRENCE IMPORTANTE <<<
             guard_clause = forall(zvars, f"{antecedent} → {inner_exist}")
