@@ -44,7 +44,7 @@ Born(John; Brussels)
 @query
 Lives(p;t)
 not Born(p;t)
-not Likes(p;t)
+not Likes(p,t;)
 `;
 });
 
