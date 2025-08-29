@@ -202,11 +202,9 @@ def rewrite(query, trace=None):
                     guard_args[j] = newv
             block_guard = _format_positive(pred, guard_args)
 
-            # 5) garde universelle + témoin existentiel
-            #    (si y est vide, exists([], ...) et forall([], ...) tombent à l'intérieur pur)
+            # 5) garde universelle (PAS d'∃ interne sur y)
             block_cond = forall(yprime, f"{block_guard} → {inner}")
-            result = exists(y, f"{block_atom} ⊓ {block_cond}")
-            trace.append(f"   - Clé non vide (garde ∀ sur hors-clé, témoin ∃) → {result}")
+            result = f"{block_atom} ⊓ {block_cond}"
             return result
 
         # Branche else, pré mémoire
